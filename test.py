@@ -9,12 +9,13 @@ def get_firebase_data():
         if not firebase_admin._apps:
             cred = credentials.Certificate("serviceAccountKey.json")
             firebase_admin.initialize_app(cred, {
-                'databaseURL': 'https://your-project.firebaseio.com'
+                'databaseURL': 'https://projek-skripsi-blower-edy-default-rtdb.asia-southeast1.firebasedatabase.app/'
             })
         
         # Ambil data dari Firebase Realtime Database
         ref = db.reference('path/to/your/data')
         data = ref.get()
+    
         return data
     except Exception as e:
         st.error(f"Error accessing Firebase: {e}")
