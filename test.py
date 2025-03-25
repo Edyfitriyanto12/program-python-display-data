@@ -1,51 +1,32 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, db
-import os
-import json
-import time
 
-# ==============================
-# 🔹 Setup Firebase
-# ==============================
-st.set_page_config(page_title="Monitoring Firebase", layout="wide")
-
-st.title("📡 Monitoring Data Realtime dari Firebase")
-
-# Ambil JSON kredensial dari GitHub Secrets
-firebase_json = os.getenv("FIREBASE_CREDENTIALS")
-
-if firebase_json:
-    cred_dict = json.loads(firebase_json)
-    if not firebase_admin._apps:  # Hindari inisialisasi ganda
-        cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://projek-skripsi-blower-edy-default-rtdb.asia-southeast1.firebasedatabase.app/'  # Ganti dengan URL Firebase Anda
-        })
-else:
-    st.error("⚠️ Kredensial Firebase tidak ditemukan! Pastikan Anda telah menambahkan FIREBASE_CREDENTIALS di GitHub Secrets.")
-
-# ==============================
-# 🔹 Fungsi Ambil Data dari Firebase
-# ==============================
-def get_data():
+# Fungsi untuk mendapatkan data dari Firebase
+def get_firebase_data():
     try:
-        ref = db.reference('/')  # Baca seluruh data
+        # Jika Firebase belum diinisialisasi
+        if not firebase_admin._apps:
+            cred = credentials.Certificate("serviceAccountKey.json")
+            firebase_admin.initialize_app(cred, {
+                'databaseURL': 'https://your-project.firebaseio.com'
+            })
+        
+        # Ambil data dari Firebase Realtime Database
+        ref = db.reference('path/to/your/data')
         data = ref.get()
-        return data if data else {}
+        return data
     except Exception as e:
-        st.error(f"⚠️ Gagal mengambil data dari Firebase: {e}")
-        return {}
+        st.error(f"Error accessing Firebase: {e}")
+        return None
 
-# ==============================
-# 🔹 Tampilan di Streamlit
-# ==============================
-st.subheader("📊 Data dari Firebase")
+# Tampilan Streamlit
+st.title("Data dari Firebase")
 
-# Loop untuk membaca data secara otomatis setiap 5 detik
-placeholder = st.empty()  # Placeholder untuk update data secara live
+data = get_firebase_data()
 
-while True:
-    data = get_data()
-    placeholder.json(data)  # Update tampilan JSON di Streamlit
-    time.sleep(5)  # Tunggu 5 detik sebelum refresh lagi
+if data:
+    st.write("Data dari Firebase:")
+    st.json(data)
+else:
+    st.write("Tidak ada data yang ditemukan atau terjadi error.")
