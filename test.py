@@ -19,7 +19,7 @@ if firebase_json:
     if not firebase_admin._apps:  # Hindari inisialisasi ganda
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://your-project-id.firebaseio.com/'  # Ganti dengan URL Firebase Anda
+            'databaseURL': 'https://projek-skripsi-blower-edy-default-rtdb.asia-southeast1.firebasedatabase.app/'  # Ganti dengan URL Firebase Anda
         })
 else:
     st.error("⚠️ Kredensial Firebase tidak ditemukan! Pastikan Anda telah menambahkan FIREBASE_CREDENTIALS di GitHub Secrets.")
