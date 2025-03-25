@@ -25,46 +25,44 @@ def init_firebase():
         st.stop()  # Hentikan aplikasi jika inisialisasi gagal
 
 def main():
-    # Judul Aplikasi
-    st.title("🔥 Monitoring Blower - Firebase Realtime")
-    
-    # Inisialisasi Firebase
     init_firebase()
     
-    # =============================================
-    # Bagian 1: Kontrol Fuzzy
-    # =============================================
-    st.subheader("🔄 Kontrol Fuzzy")
-    try:
-        # Ambil data dari path /Kontrol_Fuzzy
-        fuzzy_ref = db.reference("/Kontrol_Fuzzy")
-        fuzzy_data = fuzzy_ref.get()
-        
-        if fuzzy_data is None:
-            st.warning("Data Kontrol Fuzzy tidak ditemukan. Pastikan:")
-            st.markdown("- Path `/Kontrol_Fuzzy` ada di Firebase")
-            st.markdown("- Rules database mengizinkan operasi baca")
-        else:
-            # Tampilkan data dalam 3 kolom
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Out Fuzzy", fuzzy_data.get("Out_Fuzzy", "N/A"))
-            with col2:
-                st.metric("Suhu Realtime", fuzzy_data.get("Suhu_realtime", "N/A"))
-            with col3:
-                st.metric("Suhu 5 Menit Sebelumnya", fuzzy_data.get("Suhu_5_mentt_sebelumnya", "N/A"))
-            
-            # Debug: Tampilkan raw data
-            with st.expander("🔍 Lihat Data Mentah"):
-                st.json(fuzzy_data)
-                
-    except Exception as e:
-        st.error(f"🚨 Gagal membaca data Kontrol Fuzzy: {str(e)}")
+    # Debug 1: Tampilkan konfigurasi koneksi
+    st.code(f"Database URL: {st.secrets['firebase']['database_url']}", language="bash")
     
-    # =============================================
-    # Bagian 2: Monitoring Tegangan AC
-    # =============================================
-    st.subheader("⚡ Monitoring Tegangan AC")
+    try:
+        # Debug 2: Ambil semua data di root
+        ref = db.reference("/")
+        all_data = ref.get()
+        
+        if not all_data:
+            st.error("Database kosong. Mohon buat data contoh di Firebase Console.")
+            return
+            
+        # Debug 3: Tampilkan struktur
+        with st.expander("🔥 Struktur Database Aktual"):
+            st.json(all_data)
+            
+        # Ambil data dengan fallback jika path tidak ada
+        fuzzy_data = all_data.get("Kontrol_Fuzzy", {})
+        tegangan_data = all_data.get("Monitoring_Tegangan_AC", {})
+        
+        # Tampilkan UI
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Out Fuzzy", fuzzy_data.get("Out_Fuzzy", "N/A"))
+        with col2:
+            st.metric("Tegangan", f"{tegangan_data.get('Tegangan', 'N/A')} V")
+            
+    except Exception as e:
+        st.error(f"""
+        Gagal total baca database. Kemungkinan penyebab:
+        1. URL database salah (cek region)
+        2. Service Account tidak punya akses
+        3. Network blocking
+        Detail error: {str(e)}
+        """)
+
     try:
         # Ambil data dari path /Monitoring_Tegangan_AC
         tegangan_ref = db.reference("/Monitoring_Tegangan_AC")
