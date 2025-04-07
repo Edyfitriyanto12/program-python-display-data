@@ -65,7 +65,7 @@ def create_temperature_chart(df):
     timestamp_col = timestamp_cols[0]  # Ambil kolom pertama yang mengandung 'timestamp'
     
     # Konversi timestamp ke format datetime
-    # df['parsed_timestamp'] = df[timestamp_col].apply(parse_timestamp)
+    df['parsed_timestamp'] = df[timestamp_col].apply(parse_timestamp)
     
     # Drop baris dengan timestamp tidak valid
     df = df.dropna(subset=['parsed_timestamp'])
