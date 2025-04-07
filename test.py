@@ -160,7 +160,7 @@ def create_temperature_chart(df):
 
 try:
     df = pd.read_csv(spreadsheet_url)
-    st.success("✅ Data berhasil dimuat dan auto-refresh tiap 10 detik.")
+    st.success("✅ Data berhasil dimuat dan auto-refresh tiap 15 detik.")
     
     # Tampilkan kolom yang tersedia untuk debugging
     # st.write(f"Kolom yang tersedia: {list(df.columns)}")
