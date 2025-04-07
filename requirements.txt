@@ -1,4 +1,2 @@
 streamlit>=1.22.0
-firebase-admin>=6.1.0
-python-dotenv>=0.21.0
-requests>=2.28.1  
+tabulate
