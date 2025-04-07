@@ -3,7 +3,7 @@ from streamlit_echarts import st_echarts
 import pandas as pd
 
 # ========== DATA ==========
-data1 = {"Sensor": ["A1", "A2", "A3"], "Nilai": [23, 29, 25,49,30,50]}
+data1 = {"Sensor": ["A1", "A2", "A3","A4","A5","A6"], "Nilai": [23, 29, 25,49,30,50]}
 data2 = {"Sensor": ["B1", "B2", "B3"], "Nilai": [18, 21, 19]}
 data3 = {"Sensor": ["C1", "C2", "C3"], "Nilai": [30, 27, 32]}
 data4 = {"Sensor": ["D1", "D2", "D3"], "Nilai": [15, 13, 17]}
