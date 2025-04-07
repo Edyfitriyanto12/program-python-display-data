@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_echarts import st_echarts
 import pandas as pd
 
-# Dummy data
+# ========== DATA ==========
 data1 = {"Sensor": ["A1", "A2", "A3"], "Nilai": [23, 29, 25]}
 data2 = {"Sensor": ["B1", "B2", "B3"], "Nilai": [18, 21, 19]}
 data3 = {"Sensor": ["C1", "C2", "C3"], "Nilai": [30, 27, 32]}
@@ -13,11 +13,11 @@ df2 = pd.DataFrame(data2)
 df3 = pd.DataFrame(data3)
 df4 = pd.DataFrame(data4)
 
-# Judul Dashboard
-st.title("📊 Dashboard Sensor dengan ECharts")
+# ========== JUDUL ==========
+st.title("📊 Dashboard Sensor Interaktif dengan ECharts")
 
-# Baris 1: Dua grafik
-st.subheader("Grafik Atas")
+# ========== GRAFIK ATAS ==========
+st.subheader("📈 Grafik Atas")
 col1, col2 = st.columns(2)
 
 with col1:
@@ -27,10 +27,9 @@ with col1:
         "xAxis": {"data": df1["Sensor"].tolist()},
         "yAxis": {},
         "series": [{
-            "name": "Nilai",
             "type": "bar",
             "data": df1["Nilai"].tolist(),
-            "itemStyle": {"color": "#3BA272"}
+            "itemStyle": {"color": "#5470C6"}
         }]
     }
     st_echarts(options=option1, height="300px")
@@ -42,16 +41,15 @@ with col2:
         "xAxis": {"data": df2["Sensor"].tolist()},
         "yAxis": {},
         "series": [{
-            "name": "Nilai",
             "type": "bar",
             "data": df2["Nilai"].tolist(),
-            "itemStyle": {"color": "#FC8452"}
+            "itemStyle": {"color": "#91CC75"}
         }]
     }
     st_echarts(options=option2, height="300px")
 
-# Baris 2: Dua grafik
-st.subheader("Grafik Bawah")
+# ========== GRAFIK BAWAH ==========
+st.subheader("📈 Grafik Bawah")
 col3, col4 = st.columns(2)
 
 with col3:
@@ -61,10 +59,9 @@ with col3:
         "xAxis": {"data": df3["Sensor"].tolist()},
         "yAxis": {},
         "series": [{
-            "name": "Nilai",
             "type": "bar",
             "data": df3["Nilai"].tolist(),
-            "itemStyle": {"color": "#9A60B4"}
+            "itemStyle": {"color": "#FAC858"}
         }]
     }
     st_echarts(options=option3, height="300px")
@@ -76,16 +73,16 @@ with col4:
         "xAxis": {"data": df4["Sensor"].tolist()},
         "yAxis": {},
         "series": [{
-            "name": "Nilai",
             "type": "bar",
             "data": df4["Nilai"].tolist(),
-            "itemStyle": {"color": "#73C0DE"}
+            "itemStyle": {"color": "#EE6666"}
         }]
     }
     st_echarts(options=option4, height="300px")
 
-# Gabungkan data semua
+# ========== TABEL GABUNGAN ==========
 st.subheader("📋 Tabel Gabungan")
+
 df_all = pd.concat([
     df1.assign(Grafik="Data 1"),
     df2.assign(Grafik="Data 2"),
@@ -95,23 +92,28 @@ df_all = pd.concat([
 
 st.dataframe(df_all)
 
-# Grafik gabungan semua data
-st.subheader("📈 Grafik Gabungan Semua Data")
-grouped = df_all.groupby("Grafik")
+# ========== GRAFIK GABUNGAN ==========
+st.subheader("📊 Grafik Gabungan Semua Data")
+
+series = []
+for name, group in df_all.groupby("Grafik"):
+    series.append({
+        "name": name,
+        "type": "line",
+        "data": group["Nilai"].tolist(),
+        "smooth": True
+    })
+
 option_all = {
     "title": {"text": "Gabungan Semua Data"},
     "tooltip": {"trigger": "axis"},
-    "legend": {"data": list(grouped.groups.keys())},
-    "xAxis": {"type": "category", "data": df_all["Sensor"].tolist()},
+    "legend": {"data": df_all["Grafik"].unique().tolist()},
+    "xAxis": {
+        "type": "category",
+        "data": df_all["Sensor"].tolist()
+    },
     "yAxis": {"type": "value"},
-    "series": [
-        {
-            "name": name,
-            "type": "line",
-            "data": group["Nilai"].tolist()
-        }
-        for name, group in grouped
-    ]
+    "series": series
 }
-st_echarts(options=option_all, height="400px")
 
+st_echarts(options=option_all, height="400px")
