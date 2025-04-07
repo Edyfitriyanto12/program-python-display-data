@@ -16,7 +16,7 @@ try:
     df = pd.read_csv(spreadsheet_url)
 
     # Konversi kolom waktu ke datetime
-    df['waktu'] = pd.to_datetime(df['waktu'], errors='coerce')  # pastikan kolom namanya 'waktu'
+    df['waktu'] = pd.to_datetime(df['Timestamp'], errors='coerce')  # pastikan kolom namanya 'waktu'
     df['suhu'] = pd.to_numeric(df['suhu'], errors='coerce')
 
     # Ambil waktu sekarang dan 5 menit ke belakang
