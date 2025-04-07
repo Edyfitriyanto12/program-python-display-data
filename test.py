@@ -1,82 +1,91 @@
 import streamlit as st
-import matplotlib.pyplot as plt
+from streamlit_echarts import st_echarts
 import pandas as pd
-import seaborn as sns
 
-# Dark mode style
-plt.style.use("dark_background")
-sns.set_palette("bright")
+# Dummy data
+data1 = {"Sensor": ["A1", "A2", "A3"], "Nilai": [23, 29, 25]}
+data2 = {"Sensor": ["B1", "B2", "B3"], "Nilai": [18, 21, 19]}
+data3 = {"Sensor": ["C1", "C2", "C3"], "Nilai": [30, 27, 32]}
+data4 = {"Sensor": ["D1", "D2", "D3"], "Nilai": [15, 13, 17]}
 
-# ========== Judul Aplikasi ==========
-st.title("📊 Dashboard Data Sensor - Versi Layout Baru")
-
-# Data sensor contoh (data berbeda untuk masing-masing grafik)
-data1 = [
-    {"Sensor": "Sensor A1", "Nilai": 23},
-    {"Sensor": "Sensor A2", "Nilai": 29},
-    {"Sensor": "Sensor A3", "Nilai": 25}
-]
-
-data2 = [
-    {"Sensor": "Sensor B1", "Nilai": 18},
-    {"Sensor": "Sensor B2", "Nilai": 21},
-    {"Sensor": "Sensor B3", "Nilai": 19}
-]
-
-data3 = [
-    {"Sensor": "Sensor C1", "Nilai": 30},
-    {"Sensor": "Sensor C2", "Nilai": 27},
-    {"Sensor": "Sensor C3", "Nilai": 32}
-]
-
-data4 = [
-    {"Sensor": "Sensor D1", "Nilai": 15},
-    {"Sensor": "Sensor D2", "Nilai": 13},
-    {"Sensor": "Sensor D3", "Nilai": 17}
-]
-
-# Konversi ke DataFrame
 df1 = pd.DataFrame(data1)
 df2 = pd.DataFrame(data2)
 df3 = pd.DataFrame(data3)
 df4 = pd.DataFrame(data4)
 
-# ========== Baris 1: Dua grafik bar berdempetan ==========
-st.markdown("## 📈 Grafik Baris 1")
+# Judul Dashboard
+st.title("📊 Dashboard Sensor dengan ECharts")
+
+# Baris 1: Dua grafik
+st.subheader("Grafik Atas")
 col1, col2 = st.columns(2)
 
 with col1:
-    fig, ax = plt.subplots()
-    ax.bar(df1["Sensor"], df1["Nilai"], color="cyan")
-    ax.set_title("Grafik Data 1")
-    st.pyplot(fig)
+    option1 = {
+        "title": {"text": "Data 1"},
+        "tooltip": {},
+        "xAxis": {"data": df1["Sensor"].tolist()},
+        "yAxis": {},
+        "series": [{
+            "name": "Nilai",
+            "type": "bar",
+            "data": df1["Nilai"].tolist(),
+            "itemStyle": {"color": "#3BA272"}
+        }]
+    }
+    st_echarts(options=option1, height="300px")
 
 with col2:
-    fig, ax = plt.subplots()
-    ax.bar(df2["Sensor"], df2["Nilai"], color="orange")
-    ax.set_title("Grafik Data 2")
-    st.pyplot(fig)
+    option2 = {
+        "title": {"text": "Data 2"},
+        "tooltip": {},
+        "xAxis": {"data": df2["Sensor"].tolist()},
+        "yAxis": {},
+        "series": [{
+            "name": "Nilai",
+            "type": "bar",
+            "data": df2["Nilai"].tolist(),
+            "itemStyle": {"color": "#FC8452"}
+        }]
+    }
+    st_echarts(options=option2, height="300px")
 
-# ========== Baris 2: Dua grafik bar berdempetan ==========
-st.markdown("## 📈 Grafik Baris 2")
+# Baris 2: Dua grafik
+st.subheader("Grafik Bawah")
 col3, col4 = st.columns(2)
 
 with col3:
-    fig, ax = plt.subplots()
-    ax.bar(df3["Sensor"], df3["Nilai"], color="magenta")
-    ax.set_title("Grafik Data 3")
-    st.pyplot(fig)
+    option3 = {
+        "title": {"text": "Data 3"},
+        "tooltip": {},
+        "xAxis": {"data": df3["Sensor"].tolist()},
+        "yAxis": {},
+        "series": [{
+            "name": "Nilai",
+            "type": "bar",
+            "data": df3["Nilai"].tolist(),
+            "itemStyle": {"color": "#9A60B4"}
+        }]
+    }
+    st_echarts(options=option3, height="300px")
 
 with col4:
-    fig, ax = plt.subplots()
-    ax.bar(df4["Sensor"], df4["Nilai"], color="lime")
-    ax.set_title("Grafik Data 4")
-    st.pyplot(fig)
+    option4 = {
+        "title": {"text": "Data 4"},
+        "tooltip": {},
+        "xAxis": {"data": df4["Sensor"].tolist()},
+        "yAxis": {},
+        "series": [{
+            "name": "Nilai",
+            "type": "bar",
+            "data": df4["Nilai"].tolist(),
+            "itemStyle": {"color": "#73C0DE"}
+        }]
+    }
+    st_echarts(options=option4, height="300px")
 
-# ========== Baris 3: Tabel Gabungan Semua Data ==========
-st.markdown("## 📋 Tabel Gabungan Semua Data")
-
-# Gabungkan semua DataFrame
+# Gabungkan data semua
+st.subheader("📋 Tabel Gabungan")
 df_all = pd.concat([
     df1.assign(Grafik="Data 1"),
     df2.assign(Grafik="Data 2"),
@@ -86,16 +95,23 @@ df_all = pd.concat([
 
 st.dataframe(df_all)
 
-# ========== Baris 4: Grafik Gabungan Semua Data ==========
-st.markdown("## 📉 Grafik Gabungan Semua Data")
+# Grafik gabungan semua data
+st.subheader("📈 Grafik Gabungan Semua Data")
+grouped = df_all.groupby("Grafik")
+option_all = {
+    "title": {"text": "Gabungan Semua Data"},
+    "tooltip": {"trigger": "axis"},
+    "legend": {"data": list(grouped.groups.keys())},
+    "xAxis": {"type": "category", "data": df_all["Sensor"].tolist()},
+    "yAxis": {"type": "value"},
+    "series": [
+        {
+            "name": name,
+            "type": "line",
+            "data": group["Nilai"].tolist()
+        }
+        for name, group in grouped
+    ]
+}
+st_echarts(options=option_all, height="400px")
 
-fig, ax = plt.subplots(figsize=(12, 6))
-
-for name, group in df_all.groupby("Grafik"):
-    ax.plot(group["Sensor"], group["Nilai"], marker="o", label=name)
-
-ax.set_title("Gabungan Semua Grafik")
-ax.set_xlabel("Sensor")
-ax.set_ylabel("Nilai")
-ax.legend()
-st.pyplot(fig)
