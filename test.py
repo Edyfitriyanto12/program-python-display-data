@@ -175,7 +175,7 @@ try:
     df_display = df.drop(columns=["parsed_timestamp"], errors="ignore")
 
     st.header("📄 Data Tabel")
-    styled_df = df.style.apply(highlight_temp, axis=1)
+    styled_df = df_display.style.apply(highlight_temp, axis=1)
     st.dataframe(styled_df, use_container_width=True)
     
     # Tambahkan penjelasan
