@@ -4,6 +4,7 @@ from streamlit_autorefresh import st_autorefresh
 from pyecharts import options as opts
 from pyecharts.charts import Line
 from streamlit_echarts import st_pyecharts
+from datetime import datetime
 
 # HARUS PALING ATAS setelah import
 st.set_page_config(page_title="Data dari Google Sheet", layout="wide")
@@ -33,15 +34,42 @@ def highlight_temp(row):
     else:
         return [''] * len(row)
 
+def parse_timestamp(timestamp_str):
+    """Fungsi untuk mengkonversi string timestamp ke format datetime yang seragam"""
+    try:
+        # Coba format dengan AM/PM
+        if 'AM' in timestamp_str or 'PM' in timestamp_str:
+            return datetime.strptime(timestamp_str, '%m/%d/%Y, %I:%M:%S %p')
+        # Coba format 24 jam
+        else:
+            return datetime.strptime(timestamp_str, '%m/%d/%Y, %H:%M:%S')
+    except ValueError as e:
+        st.warning(f"Gagal parsing timestamp: {timestamp_str}. Error: {e}")
+        return None
+
 def create_temperature_chart(df):
     """Membuat grafik line chart untuk suhu dan output fuzzy"""
-    # Asumsi kolom timestamp ada di dataframe
-    timestamps = df['timestamp'].tolist() if 'timestamp' in df.columns else df.index.astype(str).tolist()
+    # Proses kolom timestamp
+    if 'timestamp' not in df.columns:
+        st.error("Kolom 'timestamp' tidak ditemukan dalam data!")
+        return None
+    
+    # Konversi timestamp ke format datetime
+    df['parsed_timestamp'] = df['timestamp'].apply(parse_timestamp)
+    
+    # Drop baris dengan timestamp tidak valid
+    df = df.dropna(subset=['parsed_timestamp'])
+    
+    # Urutkan berdasarkan timestamp
+    df = df.sort_values('parsed_timestamp')
+    
+    # Format timestamp untuk display di grafik
+    timestamps = df['parsed_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').tolist()
     
     # Temukan semua kolom suhu
     temp_columns = [col for col in df.columns if 'suhu' in col.lower() or 'temp' in col.lower()]
     
-    # Temukan kolom output fuzzy (asumsi namanya mengandung 'fuzzy' atau 'output')
+    # Temukan kolom output fuzzy
     fuzzy_columns = [col for col in df.columns if 'fuzzy' in col.lower() or 'output' in col.lower()]
     
     # Buat line chart
@@ -60,15 +88,18 @@ def create_temperature_chart(df):
                     "magicType": {"show": True, "type": ["line", "bar"]},
                 }
             ),
-            xaxis_opts=opts.AxisOpts(name="timestamp"),
+            xaxis_opts=opts.AxisOpts(
+                name="Timestamp",
+                axislabel_opts=opts.LabelOpts(rotate=45)),
             yaxis_opts=opts.AxisOpts(
                 name="Suhu (°C) dan Output Fuzzy",
                 splitline_opts=opts.SplitLineOpts(is_show=True),
-            )
+            ),
+            datazoom_opts=[opts.DataZoomOpts()]
         )
     )
     
-    # Tambahkan setiap kolom suhu sebagai series terpisah
+    # Tambahkan series untuk suhu
     for col in temp_columns:
         line_chart.add_yaxis(
             series_name=col,
@@ -90,7 +121,7 @@ def create_temperature_chart(df):
             ),
         )
     
-    # Tambahkan output fuzzy sebagai series terpisah dengan warna dan style yang berbeda
+    # Tambahkan series untuk output fuzzy
     for col in fuzzy_columns:
         line_chart.add_yaxis(
             series_name=col,
@@ -98,7 +129,7 @@ def create_temperature_chart(df):
             is_smooth=True,
             linestyle_opts=opts.LineStyleOpts(width=3, type_="dashed"),
             label_opts=opts.LabelOpts(is_show=False),
-            itemstyle_opts=opts.ItemStyleOpts(color="#FF6347"),  # Warna tomato
+            itemstyle_opts=opts.ItemStyleOpts(color="#FF6347"),
             markpoint_opts=opts.MarkPointOpts(
                 data=[
                     opts.MarkPointItem(type_="max", name="Max"),
@@ -116,10 +147,11 @@ try:
     df = pd.read_csv(spreadsheet_url)
     st.success("✅ Data berhasil dimuat dan auto-refresh tiap 10 detik.")
     
-    # Tampilkan grafik di bagian atas
+    # Tampilkan grafik
     st.header("📈 Visualisasi Grafik Suhu")
     chart = create_temperature_chart(df)
-    st_pyecharts(chart, height="500px")
+    if chart:
+        st_pyecharts(chart, height="500px")
     
     # Tampilkan tabel data
     st.header("📄 Data Tabel")
