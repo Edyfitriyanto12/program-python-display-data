@@ -1,8 +1,10 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 from tabulate import tabulate
+import pandas as pd
 
 # Judul Aplikasi
-st.title("📊 Visualisasi Data Sensor")
+st.title("📊 Dashboard Data Sensor")
 
 # Data sensor contoh (bisa diganti dengan data real)
 data_sensor = [
@@ -12,42 +14,50 @@ data_sensor = [
     {"Sensor": "Sensor 4", "Suhu": 27.2, "Kelembaban": 55, "Tekanan": 1011, "Kualitas Udara": "Baik"}
 ]
 
-# Tampilkan data per sensor
-st.header("📌 Data Sensor Individual")
-for data in data_sensor:
-    st.subheader(f"{data['Sensor']}")
-    
-    # Format tabel untuk setiap sensor
-    table_data = [
-        ["Parameter", "Nilai"],
-        ["Suhu (°C)", data["Suhu"]],
-        ["Kelembaban (%)", data["Kelembaban"]],
-        ["Tekanan (hPa)", data["Tekanan"]],
-        ["Kualitas Udara", data["Kualitas Udara"]]
-    ]
-    
-    st.markdown(
-        tabulate(table_data, headers="firstrow", tablefmt="github"),
-        unsafe_allow_html=True
-    )
-    st.divider()
+# Konversi ke DataFrame untuk grafik
+df = pd.DataFrame(data_sensor)
 
-# Tampilkan gabungan semua data
-st.header("📊 Gabungan Data Semua Sensor")
-# Format data untuk tabel gabungan
-headers = ["Sensor", "Suhu (°C)", "Kelembaban (%)", "Tekanan (hPa)", "Kualitas Udara"]
-rows = []
-for data in data_sensor:
-    rows.append([
-        data["Sensor"],
-        data["Suhu"],
-        data["Kelembaban"],
-        data["Tekanan"],
-        data["Kualitas Udara"]
-    ])
+# ====================== TABEL ======================
+st.header("📋 Tabel Data Sensor")
 
-# Tampilkan tabel gabungan
+# Tampilkan tabel gabungan dengan tabulate
+st.markdown("### Gabungan Data (Tabulate)")
 st.markdown(
-    tabulate(rows, headers=headers, tablefmt="github"),
+    tabulate(df, headers="keys", tablefmt="github"),
     unsafe_allow_html=True
 )
+
+# Tampilkan tabel interaktif dengan st.dataframe
+st.markdown("### Tabel Interaktif (Streamlit)")
+st.dataframe(df)
+
+# ====================== GRAFIK ======================
+st.header("📈 Visualisasi Grafik")
+
+# Pilih parameter untuk visualisasi
+parameter = st.selectbox(
+    "Pilih parameter untuk grafik:",
+    ["Suhu", "Kelembaban", "Tekanan"]
+)
+
+# Buat grafik dengan Matplotlib
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.bar(df["Sensor"], df[parameter], color="skyblue")
+ax.set_title(f"Perbandingan {parameter} per Sensor")
+ax.set_xlabel("Sensor")
+ax.set_ylabel(parameter)
+
+# Tambahkan nilai di atas bar
+for i, v in enumerate(df[parameter]):
+    ax.text(i, v + 0.5, str(v), ha="center")
+
+st.pyplot(fig)
+
+# Grafik garis semua parameter
+st.markdown("### Tren Semua Parameter")
+fig2, ax2 = plt.subplots(figsize=(10, 5))
+for col in ["Suhu", "Kelembaban", "Tekanan"]:
+    ax2.plot(df["Sensor"], df[col], marker="o", label=col)
+ax2.set_title("Tren Parameter Sensor")
+ax2.legend()
+st.pyplot(fig2)
