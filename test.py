@@ -17,7 +17,7 @@ try:
 
     # Konversi kolom waktu ke datetime
     df['waktu'] = pd.to_datetime(df['Timestamp'], errors='coerce')  # pastikan kolom namanya 'waktu'
-    df['suhu'] = pd.to_numeric(df['suhu'], errors='coerce')
+    df['suhu'] = pd.to_numeric(df['suhu Realtime'], errors='coerce')
 
     # Ambil waktu sekarang dan 5 menit ke belakang
     now = datetime.now()
