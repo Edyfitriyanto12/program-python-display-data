@@ -163,7 +163,7 @@ try:
     st.success("✅ Data berhasil dimuat dan auto-refresh tiap 10 detik.")
     
     # Tampilkan kolom yang tersedia untuk debugging
-    st.write(f"Kolom yang tersedia: {list(df.columns)}")
+    # st.write(f"Kolom yang tersedia: {list(df.columns)}")
     
     # Tampilkan grafik
     st.header("📈 Visualisasi Grafik Suhu")
