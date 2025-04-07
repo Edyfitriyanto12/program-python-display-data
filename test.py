@@ -173,6 +173,7 @@ try:
     
     # Tampilkan tabel data
     st.header("📄 Data Tabel")
+    df_display = df.drop(columns=[timestamp_col])  # atau ['Timestamp']
     styled_df = df.style.apply(highlight_temp, axis=1)
     st.dataframe(styled_df, use_container_width=True)
     
