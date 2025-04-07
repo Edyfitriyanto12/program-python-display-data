@@ -10,7 +10,7 @@ from datetime import datetime
 st.set_page_config(page_title="Data dari Google Sheet", layout="wide")
 
 # Auto-refresh tiap 10 detik
-st_autorefresh(interval=10 * 1000, key="auto_refresh")
+st_autorefresh(interval=15 * 1000, key="auto_refresh")
 
 st.title("📊 Monitoring Suhu Real-time")
 
