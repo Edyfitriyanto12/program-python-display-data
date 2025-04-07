@@ -69,23 +69,17 @@ def create_temperature_chart(df):
     
     # Drop baris dengan timestamp tidak valid
     df = df.dropna(subset=['parsed_timestamp'])
-
+    
     if df.empty:
         st.error("Tidak ada data dengan timestamp valid!")
         return None
     
-    # Ganti isi kolom timestamp asli dengan hasil parsing (format string yang rapi)
-    df[timestamp_col] = df['parsed_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
-
-    # Urutkan berdasarkan hasil parsing
+    # Urutkan berdasarkan timestamp
     df = df.sort_values('parsed_timestamp')
-
-    # Siapkan data untuk sumbu X grafik dari kolom timestamp asli
-    timestamps = df[timestamp_col].tolist()
-
-    # Hapus kolom parsed_timestamp agar tidak tampil sebagai kolom tambahan
-    df.drop(columns=['parsed_timestamp'], inplace=True)
-
+    
+    # Format timestamp untuk display di grafik
+    timestamps = df['parsed_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').tolist()
+    
     # Temukan semua kolom suhu
     temp_columns = [col for col in df.columns if 'suhu' in col.lower() or 'temp' in col.lower()]
     
@@ -121,7 +115,7 @@ def create_temperature_chart(df):
     
     # Tambahkan series untuk suhu
     for col in temp_columns:
-        if col != timestamp_col:
+        if col != timestamp_col:  # Hindari memplot kolom timestamp sebagai suhu
             line_chart.add_yaxis(
                 series_name=col,
                 y_axis=df[col].tolist(),
@@ -164,7 +158,6 @@ def create_temperature_chart(df):
     
     return line_chart
 
-
 try:
     df = pd.read_csv(spreadsheet_url)
     st.success("✅ Data berhasil dimuat dan auto-refresh tiap 10 detik.")
@@ -198,3 +191,4 @@ try:
 
 except Exception as e:
     st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
+
