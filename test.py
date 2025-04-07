@@ -1,63 +1,101 @@
 import streamlit as st
 import matplotlib.pyplot as plt
-from tabulate import tabulate
 import pandas as pd
+import seaborn as sns
 
-# Judul Aplikasi
-st.title("📊 Dashboard Data Sensor")
+# Dark mode style
+plt.style.use("dark_background")
+sns.set_palette("bright")
 
-# Data sensor contoh (bisa diganti dengan data real)
-data_sensor = [
-    {"Sensor": "Sensor 1", "Suhu": 25.5, "Kelembaban": 60, "Tekanan": 1013, "Kualitas Udara": "Baik"},
-    {"Sensor": "Sensor 2", "Suhu": 26.0, "Kelembaban": 58, "Tekanan": 1012, "Kualitas Udara": "Baik"},
-    {"Sensor": "Sensor 3", "Suhu": 24.8, "Kelembaban": 62, "Tekanan": 1014, "Kualitas Udara": "Sedang"},
-    {"Sensor": "Sensor 4", "Suhu": 27.2, "Kelembaban": 55, "Tekanan": 1011, "Kualitas Udara": "Baik"}
+# ========== Judul Aplikasi ==========
+st.title("📊 Dashboard Data Sensor - Versi Layout Baru")
+
+# Data sensor contoh (data berbeda untuk masing-masing grafik)
+data1 = [
+    {"Sensor": "Sensor A1", "Nilai": 23},
+    {"Sensor": "Sensor A2", "Nilai": 29},
+    {"Sensor": "Sensor A3", "Nilai": 25}
 ]
 
-# Konversi ke DataFrame untuk grafik
-df = pd.DataFrame(data_sensor)
+data2 = [
+    {"Sensor": "Sensor B1", "Nilai": 18},
+    {"Sensor": "Sensor B2", "Nilai": 21},
+    {"Sensor": "Sensor B3", "Nilai": 19}
+]
 
-# ====================== TABEL ======================
-st.header("📋 Tabel Data Sensor")
+data3 = [
+    {"Sensor": "Sensor C1", "Nilai": 30},
+    {"Sensor": "Sensor C2", "Nilai": 27},
+    {"Sensor": "Sensor C3", "Nilai": 32}
+]
 
-# Tampilkan tabel gabungan dengan tabulate
-st.markdown("### Gabungan Data (Tabulate)")
-st.markdown(
-    tabulate(df, headers="keys", tablefmt="github"),
-    unsafe_allow_html=True
-)
+data4 = [
+    {"Sensor": "Sensor D1", "Nilai": 15},
+    {"Sensor": "Sensor D2", "Nilai": 13},
+    {"Sensor": "Sensor D3", "Nilai": 17}
+]
 
-# Tampilkan tabel interaktif dengan st.dataframe
-st.markdown("### Tabel Interaktif (Streamlit)")
-st.dataframe(df)
+# Konversi ke DataFrame
+df1 = pd.DataFrame(data1)
+df2 = pd.DataFrame(data2)
+df3 = pd.DataFrame(data3)
+df4 = pd.DataFrame(data4)
 
-# ====================== GRAFIK ======================
-st.header("📈 Visualisasi Grafik")
+# ========== Baris 1: Dua grafik bar berdempetan ==========
+st.markdown("## 📈 Grafik Baris 1")
+col1, col2 = st.columns(2)
 
-# Pilih parameter untuk visualisasi
-parameter = st.selectbox(
-    "Pilih parameter untuk grafik:",
-    ["Suhu", "Kelembaban", "Tekanan"]
-)
+with col1:
+    fig, ax = plt.subplots()
+    ax.bar(df1["Sensor"], df1["Nilai"], color="cyan")
+    ax.set_title("Grafik Data 1")
+    st.pyplot(fig)
 
-# Buat grafik dengan Matplotlib
-fig, ax = plt.subplots(figsize=(10, 5))
-ax.bar(df["Sensor"], df[parameter], color="skyblue")
-ax.set_title(f"Perbandingan {parameter} per Sensor")
+with col2:
+    fig, ax = plt.subplots()
+    ax.bar(df2["Sensor"], df2["Nilai"], color="orange")
+    ax.set_title("Grafik Data 2")
+    st.pyplot(fig)
+
+# ========== Baris 2: Dua grafik bar berdempetan ==========
+st.markdown("## 📈 Grafik Baris 2")
+col3, col4 = st.columns(2)
+
+with col3:
+    fig, ax = plt.subplots()
+    ax.bar(df3["Sensor"], df3["Nilai"], color="magenta")
+    ax.set_title("Grafik Data 3")
+    st.pyplot(fig)
+
+with col4:
+    fig, ax = plt.subplots()
+    ax.bar(df4["Sensor"], df4["Nilai"], color="lime")
+    ax.set_title("Grafik Data 4")
+    st.pyplot(fig)
+
+# ========== Baris 3: Tabel Gabungan Semua Data ==========
+st.markdown("## 📋 Tabel Gabungan Semua Data")
+
+# Gabungkan semua DataFrame
+df_all = pd.concat([
+    df1.assign(Grafik="Data 1"),
+    df2.assign(Grafik="Data 2"),
+    df3.assign(Grafik="Data 3"),
+    df4.assign(Grafik="Data 4"),
+], ignore_index=True)
+
+st.dataframe(df_all)
+
+# ========== Baris 4: Grafik Gabungan Semua Data ==========
+st.markdown("## 📉 Grafik Gabungan Semua Data")
+
+fig, ax = plt.subplots(figsize=(12, 6))
+
+for name, group in df_all.groupby("Grafik"):
+    ax.plot(group["Sensor"], group["Nilai"], marker="o", label=name)
+
+ax.set_title("Gabungan Semua Grafik")
 ax.set_xlabel("Sensor")
-ax.set_ylabel(parameter)
-
-# Tambahkan nilai di atas bar
-for i, v in enumerate(df[parameter]):
-    ax.text(i, v + 0.5, str(v), ha="center")
-
+ax.set_ylabel("Nilai")
+ax.legend()
 st.pyplot(fig)
-
-# Grafik garis semua parameter
-st.markdown("### Tren Semua Parameter")
-fig2, ax2 = plt.subplots(figsize=(10, 5))
-for col in ["Suhu", "Kelembaban", "Tekanan"]:
-    ax2.plot(df["Sensor"], df[col], marker="o", label=col)
-ax2.set_title("Tren Parameter Sensor")
-ax2.legend()
-st.pyplot(fig2)
