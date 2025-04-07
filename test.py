@@ -34,19 +34,22 @@ def highlight_temp(row):
         return [''] * len(row)
 
 def create_temperature_chart(df):
-    """Membuat grafik line chart untuk suhu"""
+    """Membuat grafik line chart untuk suhu dan output fuzzy"""
     # Asumsi kolom timestamp ada di dataframe
     timestamps = df['timestamp'].tolist() if 'timestamp' in df.columns else df.index.astype(str).tolist()
     
     # Temukan semua kolom suhu
     temp_columns = [col for col in df.columns if 'suhu' in col.lower() or 'temp' in col.lower()]
     
+    # Temukan kolom output fuzzy (asumsi namanya mengandung 'fuzzy' atau 'output')
+    fuzzy_columns = [col for col in df.columns if 'fuzzy' in col.lower() or 'output' in col.lower()]
+    
     # Buat line chart
     line_chart = (
         Line()
         .add_xaxis(timestamps)
         .set_global_opts(
-            title_opts=opts.TitleOpts(title="Trend Suhu"),
+            title_opts=opts.TitleOpts(title="Trend Suhu dan Output Fuzzy"),
             tooltip_opts=opts.TooltipOpts(trigger="axis"),
             toolbox_opts=opts.ToolboxOpts(
                 feature={
@@ -84,6 +87,26 @@ def create_temperature_chart(df):
                     opts.MarkLineItem(y=60, name="Batas Bawah"),
                     opts.MarkLineItem(y=70, name="Batas Atas"),
                 ]
+            ),
+        )
+    
+    # Tambahkan output fuzzy sebagai series terpisah dengan warna dan style yang berbeda
+    for col in fuzzy_columns:
+        line_chart.add_yaxis(
+            series_name=col,
+            y_axis=df[col].tolist(),
+            is_smooth=True,
+            linestyle_opts=opts.LineStyleOpts(width=3, type_="dashed"),
+            label_opts=opts.LabelOpts(is_show=False),
+            itemstyle_opts=opts.ItemStyleOpts(color="#FF6347"),  # Warna tomato
+            markpoint_opts=opts.MarkPointOpts(
+                data=[
+                    opts.MarkPointItem(type_="max", name="Max"),
+                    opts.MarkPointItem(type_="min", name="Min"),
+                ]
+            ),
+            markline_opts=opts.MarkLineOpts(
+                data=[opts.MarkLineItem(type_="average", name="Average")]
             ),
         )
     
