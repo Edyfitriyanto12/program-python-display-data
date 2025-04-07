@@ -13,20 +13,24 @@ st.title("📄 Data dari Google Spreadsheet (Realtime)")
 spreadsheet_url = "https://docs.google.com/spreadsheets/d/1aFLGmvdviHrPQyKeFcD1jdZU9A3g_RJEMP8X_iMCA7s/export?format=csv"
 
 def highlight_temp(row):
-    """Fungsi untuk memberikan warna pada baris dengan suhu antara 60-70°C"""
-    style = []
+    """Fungsi untuk memberikan warna biru transparan pada seluruh baris jika suhu antara 60-70°C"""
+    # Cek apakah ada suhu dalam range 60-70 di baris ini
+    highlight = False
     for col in row.index:
-        # Jika kolom berisi suhu (asumsi nama kolom mengandung 'suhu' atau 'temp')
         if 'suhu' in col.lower() or 'temp' in col.lower():
             try:
                 temp = float(row[col])
                 if 60 <= temp <= 70:
-                    style.append('background-color: #FFA07A; font-weight: bold;')
-                    continue
+                    highlight = True
+                    break
             except (ValueError, TypeError):
                 pass
-        style.append('')
-    return style
+    
+    # Jika ada suhu dalam range, beri warna pada semua kolom
+    if highlight:
+        return ['background-color: rgba(100, 149, 237, 0.6); font-weight: bold;'] * len(row)
+    else:
+        return [''] * len(row)
 
 try:
     df = pd.read_csv(spreadsheet_url)
@@ -42,13 +46,13 @@ try:
     st.markdown("""
     <style>
         .highlight-example {
-            background-color: #FFA07A;
+            background-color: rgba(100, 149, 237, 0.6);
             padding: 5px;
             border-radius: 3px;
             font-weight: bold;
         }
     </style>
-    <p>Baris dengan <span class="highlight-example">warna oranye</span> menunjukkan suhu antara 60-70°C</p>
+    <p>Baris dengan <span class="highlight-example">warna biru transparan</span> menunjukkan terdapat suhu antara 60-70°C pada salah satu sensor</p>
     """, unsafe_allow_html=True)
 
 except Exception as e:
