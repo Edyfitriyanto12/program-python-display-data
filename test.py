@@ -57,10 +57,10 @@ def create_temperature_chart(df):
     # Cari kolom timestamp (case insensitive)
     timestamp_cols = [col for col in df.columns if 'timestamp' in col.lower()]
     
-    if not timestamp_cols:
-        st.error("Kolom timestamp tidak ditemukan dalam data!")
-        st.warning(f"Kolom yang tersedia: {list(df.columns)}")
-        return None
+    # if not timestamp_cols:
+    #     st.error("Kolom timestamp tidak ditemukan dalam data!")
+    #     st.warning(f"Kolom yang tersedia: {list(df.columns)}")
+    #     return None
     
     timestamp_col = timestamp_cols[0]  # Ambil kolom pertama yang mengandung 'timestamp'
     
