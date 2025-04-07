@@ -1,6 +1,10 @@
+import streamlit as st
 from tabulate import tabulate
 
-# Data sensor (contoh data)
+# Judul Aplikasi
+st.title("📊 Visualisasi Data Sensor")
+
+# Data sensor contoh (bisa diganti dengan data real)
 data_sensor = [
     {"Sensor": "Sensor 1", "Suhu": 25.5, "Kelembaban": 60, "Tekanan": 1013, "Kualitas Udara": "Baik"},
     {"Sensor": "Sensor 2", "Suhu": 26.0, "Kelembaban": 58, "Tekanan": 1012, "Kualitas Udara": "Baik"},
@@ -8,23 +12,29 @@ data_sensor = [
     {"Sensor": "Sensor 4", "Suhu": 27.2, "Kelembaban": 55, "Tekanan": 1011, "Kualitas Udara": "Baik"}
 ]
 
-# Menampilkan masing-masing data sensor
-print("Data Sensor Individual:")
+# Tampilkan data per sensor
+st.header("📌 Data Sensor Individual")
 for data in data_sensor:
-    print(f"\n{data['Sensor']}:")
-    # Membuat tabel untuk setiap sensor
-    table = [
+    st.subheader(f"{data['Sensor']}")
+    
+    # Format tabel untuk setiap sensor
+    table_data = [
+        ["Parameter", "Nilai"],
         ["Suhu (°C)", data["Suhu"]],
         ["Kelembaban (%)", data["Kelembaban"]],
         ["Tekanan (hPa)", data["Tekanan"]],
         ["Kualitas Udara", data["Kualitas Udara"]]
     ]
-    print(tabulate(table, headers=["Parameter", "Nilai"], tablefmt="grid"))
-    print("-" * 30)
+    
+    st.markdown(
+        tabulate(table_data, headers="firstrow", tablefmt="github"),
+        unsafe_allow_html=True
+    )
+    st.divider()
 
-# Menampilkan gabungan semua data sensor
-print("\nGabungan Data Semua Sensor:")
-# Menyiapkan data untuk tabel gabungan
+# Tampilkan gabungan semua data
+st.header("📊 Gabungan Data Semua Sensor")
+# Format data untuk tabel gabungan
 headers = ["Sensor", "Suhu (°C)", "Kelembaban (%)", "Tekanan (hPa)", "Kualitas Udara"]
 rows = []
 for data in data_sensor:
@@ -36,5 +46,8 @@ for data in data_sensor:
         data["Kualitas Udara"]
     ])
 
-# Menampilkan tabel gabungan
-print(tabulate(rows, headers=headers, tablefmt="grid"))
+# Tampilkan tabel gabungan
+st.markdown(
+    tabulate(rows, headers=headers, tablefmt="github"),
+    unsafe_allow_html=True
+)
