@@ -57,9 +57,9 @@ def create_temperature_chart(df):
                     "magicType": {"show": True, "type": ["line", "bar"]},
                 }
             ),
-            xaxis_opts=opts.AxisOpts(name="Waktu"),
+            xaxis_opts=opts.AxisOpts(name="timestamp"),
             yaxis_opts=opts.AxisOpts(
-                name="Suhu (°C)",
+                name="Suhu (°C) dan Output Fuzzy",
                 splitline_opts=opts.SplitLineOpts(is_show=True),
             )
         )
