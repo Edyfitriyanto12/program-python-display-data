@@ -1,105 +1,40 @@
-import streamlit as st
-import firebase_admin
-from firebase_admin import credentials, db
+from tabulate import tabulate
 
-# Inisialisasi Firebase
-def init_firebase():
-    try:
-        if not firebase_admin._apps:
-            # Konfigurasi credentials dari Streamlit secrets
-            firebase_config = {
-                "type": st.secrets["firebase"]["type"],
-                "project_id": st.secrets["firebase"]["project_id"],
-                "private_key": st.secrets["firebase"]["private_key"].replace("\\n", "\n"),
-                "client_email": st.secrets["firebase"]["client_email"],
-                "token_uri": st.secrets["firebase"]["token_uri"]
-            }
-            
-            # Inisialisasi Firebase Admin SDK
-            cred = credentials.Certificate(firebase_config)
-            firebase_admin.initialize_app(cred, {
-                "databaseURL": st.secrets["firebase"]["database_url"]
-            })
-    except Exception as e:
-        st.error(f"🔥 Gagal inisialisasi Firebase: {str(e)}")
-        st.stop()  # Hentikan aplikasi jika inisialisasi gagal
+# Data sensor (contoh data)
+data_sensor = [
+    {"Sensor": "Sensor 1", "Suhu": 25.5, "Kelembaban": 60, "Tekanan": 1013, "Kualitas Udara": "Baik"},
+    {"Sensor": "Sensor 2", "Suhu": 26.0, "Kelembaban": 58, "Tekanan": 1012, "Kualitas Udara": "Baik"},
+    {"Sensor": "Sensor 3", "Suhu": 24.8, "Kelembaban": 62, "Tekanan": 1014, "Kualitas Udara": "Sedang"},
+    {"Sensor": "Sensor 4", "Suhu": 27.2, "Kelembaban": 55, "Tekanan": 1011, "Kualitas Udara": "Baik"}
+]
 
-def main():
-    init_firebase()
-    
-    # Debug 1: Tampilkan konfigurasi koneksi
-    st.code(f"Database URL: {st.secrets['firebase']['database_url']}", language="bash")
-    
-    try:
-        # Debug 2: Ambil semua data di root
-        ref = db.reference("/")
-        all_data = ref.get()
-        
-        if not all_data:
-            st.error("Database kosong. Mohon buat data contoh di Firebase Console.")
-            return
-            
-        # Debug 3: Tampilkan struktur
-        with st.expander("🔥 Struktur Database Aktual"):
-            st.json(all_data)
-            
-        # Ambil data dengan fallback jika path tidak ada
-        fuzzy_data = all_data.get("Kontrol_Fuzzy", {})
-        tegangan_data = all_data.get("Monitoring_Tegangan_AC", {})
-        
-        # Tampilkan UI
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric("Out Fuzzy", fuzzy_data.get("Out_Fuzzy", "N/A"))
-        with col2:
-            st.metric("Tegangan", f"{tegangan_data.get('Tegangan', 'N/A')} V")
-            
-    except Exception as e:
-        st.error(f"""
-        Gagal total baca database. Kemungkinan penyebab:
-        1. URL database salah (cek region)
-        2. Service Account tidak punya akses
-        3. Network blocking
-        Detail error: {str(e)}
-        """)
+# Menampilkan masing-masing data sensor
+print("Data Sensor Individual:")
+for data in data_sensor:
+    print(f"\n{data['Sensor']}:")
+    # Membuat tabel untuk setiap sensor
+    table = [
+        ["Suhu (°C)", data["Suhu"]],
+        ["Kelembaban (%)", data["Kelembaban"]],
+        ["Tekanan (hPa)", data["Tekanan"]],
+        ["Kualitas Udara", data["Kualitas Udara"]]
+    ]
+    print(tabulate(table, headers=["Parameter", "Nilai"], tablefmt="grid"))
+    print("-" * 30)
 
-    try:
-        # Ambil data dari path /Monitoring_Tegangan_AC
-        tegangan_ref = db.reference("/Monitoring_Tegangan_AC")
-        tegangan_data = tegangan_ref.get()
-        
-        if tegangan_data is None:
-            st.warning("Data Tegangan AC tidak ditemukan. Pastikan:")
-            st.markdown("- Path `/Monitoring_Tegangan_AC` ada di Firebase")
-            st.markdown("- Rules database mengizinkan operasi baca")
-        else:
-            # Tampilkan data dalam 3 kolom
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Tegangan", f"{tegangan_data.get('Tegangan', 'N/A')} V")
-            with col2:
-                st.metric("Ampere", f"{tegangan_data.get('Ampere', 'N/A')} A")
-            with col3:
-                st.metric("Frequency", f"{tegangan_data.get('Frequency', 'N/A')} Hz")
-            
-            # Debug: Tampilkan raw data
-            with st.expander("🔍 Lihat Data Mentah"):
-                st.json(tegangan_data)
-                
-    except Exception as e:
-        st.error(f"🚨 Gagal membaca data Tegangan AC: {str(e)}")
-    
-    # =============================================
-    # Bagian 3: Debugging - Tampilkan Semua Data
-    # =============================================
-    with st.expander("🛠️ Debug Database"):
-        try:
-            all_data_ref = db.reference("/")
-            all_data = all_data_ref.get()
-            st.write("Struktur Database Lengkap:")
-            st.json(all_data)
-        except Exception as e:
-            st.error(f"Gagal memuat semua data: {str(e)}")
+# Menampilkan gabungan semua data sensor
+print("\nGabungan Data Semua Sensor:")
+# Menyiapkan data untuk tabel gabungan
+headers = ["Sensor", "Suhu (°C)", "Kelembaban (%)", "Tekanan (hPa)", "Kualitas Udara"]
+rows = []
+for data in data_sensor:
+    rows.append([
+        data["Sensor"],
+        data["Suhu"],
+        data["Kelembaban"],
+        data["Tekanan"],
+        data["Kualitas Udara"]
+    ])
 
-if __name__ == "__main__":
-    main()
+# Menampilkan tabel gabungan
+print(tabulate(rows, headers=headers, tablefmt="grid"))
