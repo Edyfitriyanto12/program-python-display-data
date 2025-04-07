@@ -173,7 +173,7 @@ try:
     
     # Tampilkan tabel data
     st.header("📄 Data Tabel")
-    # df_display = df.drop(columns=[timestamp_col])  # atau ['Timestamp']
+    df_display = df.drop(columns=["parsed_timestamp"], errors="ignore")  # hanya hapus dari tampilan
     styled_df = df.style.apply(highlight_temp, axis=1)
     st.dataframe(styled_df, use_container_width=True)
     
