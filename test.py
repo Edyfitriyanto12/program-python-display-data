@@ -172,8 +172,9 @@ try:
         st_pyecharts(chart, height="500px")
     
     # Tampilkan tabel data
+    df_display = df.drop(columns=["parsed_timestamp"], errors="ignore")
+
     st.header("📄 Data Tabel")
-    df_display = df.drop(columns=[col for col in df.columns if col.startswith("parsed_")], errors="ignore")
     styled_df = df.style.apply(highlight_temp, axis=1)
     st.dataframe(styled_df, use_container_width=True)
     
