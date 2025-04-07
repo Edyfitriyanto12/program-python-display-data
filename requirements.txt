@@ -1,7 +1,5 @@
 streamlit
 pandas
-numpy
-pyecharts 
+ 
 streamlit-echarts
 streamlit-autorefresh
-pyecharts.charts
