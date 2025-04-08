@@ -86,7 +86,7 @@ def create_temperature_chart(df):
         Line()
         .add_xaxis(timestamps)
         .set_global_opts(
-            title_opts=opts.TitleOpts(title="Data Suhu dan Output Fuzzy"),
+            title_opts=opts.TitleOpts(title="Nilai Parameter"),
             tooltip_opts=opts.TooltipOpts(trigger="axis"),
             toolbox_opts=opts.ToolboxOpts(
                 feature={
