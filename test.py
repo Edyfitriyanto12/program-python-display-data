@@ -381,6 +381,8 @@ try:
 except Exception as e:
     st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
 
+import streamlit as st
+
 st.markdown("""
 <style>
     /* CSS untuk Footer */
@@ -388,44 +390,46 @@ st.markdown("""
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
+        align-items: flex-start;
+        background-color: #0e1117;
         color: #808080;
-        font-family: Arial, sans-serif;
-        margin-top: 30px;
-        padding: 20px 0;
-        border-top: 1px solid #808080;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 30px 20px;
+        margin-top: 50px;
+        border-top: 1px solid #404040;
     }
 
     .footer-column {
-        flex: 1 1 30%;
-        min-width: 200px;
-        padding: 0 15px;
+        flex: 1 1 250px;
+        padding: 10px 15px;
         box-sizing: border-box;
     }
 
     .footer-title {
         color: #FFFFFF;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         font-size: 18px;
+        font-weight: bold;
     }
 
     .footer-text {
-        margin: 5px 0;
-        line-height: 1.5;
+        margin: 6px 0;
+        line-height: 1.6;
         font-size: 14px;
-        color: #808080;
+        color: #A0A0A0;
     }
 
     .social-links {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
     }
 
     .social-links a {
         color: #808080;
         text-decoration: none;
-        transition: color 0.3s;
         font-size: 14px;
+        transition: color 0.3s ease;
     }
 
     .social-links a:hover {
@@ -434,11 +438,17 @@ st.markdown("""
 
     .copyright {
         text-align: center;
-        color: #808080;
-        margin-top: 20px;
-        padding: 10px 0;
-        font-size: 12px;
-        border-top: 1px solid #404040;
+        color: #707070;
+        font-size: 13px;
+        margin-top: 25px;
+        padding: 15px 0;
+        border-top: 1px solid #303030;
+    }
+
+    @media (max-width: 600px) {
+        .footer-column {
+            flex: 1 1 100%;
+        }
     }
 </style>
 
@@ -446,7 +456,7 @@ st.markdown("""
     <!-- Kolom Location -->
     <div class="footer-column">
         <h3 class="footer-title">LOCATION</h3>
-        <p class="footer-text">3481 Meteor Piece,</p>
+        <p class="footer-text">3481 Meteor Place,</p>
         <p class="footer-text">Beverly Hills, CA 90210</p>
     </div>
 
@@ -463,7 +473,7 @@ st.markdown("""
     <!-- Kolom About DeltaUser -->
     <div class="footer-column">
         <h3 class="footer-title">ABOUT DELTAUSER</h3>
-        <p class="footer-text">DeltaUser is an employee in Freelancer.</p>
+        <p class="footer-text">DeltaUser is a freelancer and passionate developer.</p>
     </div>
 </div>
 
