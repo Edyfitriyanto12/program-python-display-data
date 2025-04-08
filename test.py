@@ -12,7 +12,7 @@ st.set_page_config(page_title="Data dari Google Sheet", layout="wide")
 # Auto-refresh tiap 10 detik
 st_autorefresh(interval=15 * 1000, key="auto_refresh")
 
-st.title("📊 Monitoring Suhu Real-time")
+st.title("📊 Monitoring Real-time")
 
 spreadsheet_url = "https://docs.google.com/spreadsheets/d/1aFLGmvdviHrPQyKeFcD1jdZU9A3g_RJEMP8X_iMCA7s/export?format=csv"
 
@@ -57,11 +57,6 @@ def create_temperature_chart(df):
     # Cari kolom timestamp (case insensitive)
     timestamp_cols = [col for col in df.columns if 'timestamp' in col.lower()]
     
-    # if not timestamp_cols:
-    #     st.error("Kolom timestamp tidak ditemukan dalam data!")
-    #     st.warning(f"Kolom yang tersedia: {list(df.columns)}")
-    #     return None
-    
     timestamp_col = timestamp_cols[0]  # Ambil kolom pertama yang mengandung 'timestamp'
     
     # Konversi timestamp ke format datetime
@@ -91,7 +86,7 @@ def create_temperature_chart(df):
         Line()
         .add_xaxis(timestamps)
         .set_global_opts(
-            title_opts=opts.TitleOpts(title="Data"),
+            title_opts=opts.TitleOpts(title="Data Suhu dan Output Fuzzy"),
             tooltip_opts=opts.TooltipOpts(trigger="axis"),
             toolbox_opts=opts.ToolboxOpts(
                 feature={
@@ -158,18 +153,134 @@ def create_temperature_chart(df):
     
     return line_chart
 
+def create_energy_chart(df):
+    """Membuat grafik line chart untuk parameter energi (tegangan, ampere, frekuensi)"""
+    # Pastikan kolom timestamp sudah di-parse
+    if 'parsed_timestamp' not in df.columns:
+        timestamp_cols = [col for col in df.columns if 'timestamp' in col.lower()]
+        if not timestamp_cols:
+            st.error("Kolom timestamp tidak ditemukan dalam data!")
+            return None
+        
+        df['parsed_timestamp'] = df[timestamp_cols[0]].apply(parse_timestamp)
+        df = df.dropna(subset=['parsed_timestamp'])
+    
+    if df.empty:
+        st.error("Tidak ada data dengan timestamp valid!")
+        return None
+    
+    # Urutkan berdasarkan timestamp
+    df = df.sort_values('parsed_timestamp')
+    
+    # Format timestamp untuk display di grafik
+    timestamps = df['parsed_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').tolist()
+    
+    # Temukan kolom energi (case insensitive)
+    voltage_columns = [col for col in df.columns if 'volt' in col.lower() or 'tegangan' in col.lower()]
+    current_columns = [col for col in df.columns if 'ampere' in col.lower() or 'current' in col.lower()]
+    freq_columns = [col for col in df.columns if 'frekuensi' in col.lower() or 'freq' in col.lower()]
+    
+    # Buat line chart
+    line_chart = (
+        Line()
+        .add_xaxis(timestamps)
+        .set_global_opts(
+            title_opts=opts.TitleOpts(title="Data Parameter Energi"),
+            tooltip_opts=opts.TooltipOpts(trigger="axis"),
+            toolbox_opts=opts.ToolboxOpts(
+                feature={
+                    "saveAsImage": {},
+                    "dataView": {},
+                    "restore": {},
+                    "dataZoom": {},
+                    "magicType": {"show": True, "type": ["line", "bar"]},
+                }
+            ),
+            xaxis_opts=opts.AxisOpts(
+                name="Timestamp",
+                axislabel_opts=opts.LabelOpts(rotate=45)),
+            yaxis_opts=opts.AxisOpts(
+                name="Nilai Parameter",
+                splitline_opts=opts.SplitLineOpts(is_show=True),
+            ),
+            datazoom_opts=[opts.DataZoomOpts()]
+        )
+    )
+    
+    # Tambahkan series untuk tegangan
+    for col in voltage_columns:
+        line_chart.add_yaxis(
+            series_name=col,
+            y_axis=df[col].tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            itemstyle_opts=opts.ItemStyleOpts(color="#1E90FF"),  # Warna biru
+            markpoint_opts=opts.MarkPointOpts(
+                data=[
+                    opts.MarkPointItem(type_="max", name="Max"),
+                    opts.MarkPointItem(type_="min", name="Min"),
+                ]
+            ),
+            markline_opts=opts.MarkLineOpts(
+                data=[opts.MarkLineItem(type_="average", name="Rata-rata")]
+            ),
+        )
+    
+    # Tambahkan series untuk ampere
+    for col in current_columns:
+        line_chart.add_yaxis(
+            series_name=col,
+            y_axis=df[col].tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            itemstyle_opts=opts.ItemStyleOpts(color="#32CD32"),  # Warna hijau
+            markpoint_opts=opts.MarkPointOpts(
+                data=[
+                    opts.MarkPointItem(type_="max", name="Max"),
+                    opts.MarkPointItem(type_="min", name="Min"),
+                ]
+            ),
+            markline_opts=opts.MarkLineOpts(
+                data=[opts.MarkLineItem(type_="average", name="Rata-rata")]
+            ),
+        )
+    
+    # Tambahkan series untuk frekuensi
+    for col in freq_columns:
+        line_chart.add_yaxis(
+            series_name=col,
+            y_axis=df[col].tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            itemstyle_opts=opts.ItemStyleOpts(color="#FF6347"),  # Warna merah
+            markpoint_opts=opts.MarkPointOpts(
+                data=[
+                    opts.MarkPointItem(type_="max", name="Max"),
+                    opts.MarkPointItem(type_="min", name="Min"),
+                ]
+            ),
+            markline_opts=opts.MarkLineOpts(
+                data=[opts.MarkLineItem(type_="average", name="Rata-rata")]
+            ),
+        )
+    
+    return line_chart
+
 try:
     df = pd.read_csv(spreadsheet_url)
     st.success("✅ Data berhasil dimuat dan auto-refresh tiap 15 detik.")
     
-    # Tampilkan kolom yang tersedia untuk debugging
-    # st.write(f"Kolom yang tersedia: {list(df.columns)}")
+    # Tampilkan grafik suhu
+    st.header("📈 Visualisasi Grafik Suhu dan Output Fuzzy")
+    temp_chart = create_temperature_chart(df)
+    if temp_chart:
+        st_pyecharts(temp_chart, height="500px")
     
-    # Tampilkan grafik
-    st.header("📈 Visualisasi Grafik Suhu")
-    chart = create_temperature_chart(df)
-    if chart:
-        st_pyecharts(chart, height="500px")
+    # Tampilkan grafik energi
+    st.header("⚡ Visualisasi Grafik Parameter Energi")
+    energy_chart = create_energy_chart(df)
+    if energy_chart:
+        st_pyecharts(energy_chart, height="500px")
     
     # Tampilkan tabel data
     df_display = df.drop(columns=["parsed_timestamp"], errors="ignore")
@@ -195,4 +306,4 @@ try:
 
 except Exception as e:
     st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
-
+    
