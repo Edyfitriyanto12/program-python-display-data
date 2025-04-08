@@ -441,9 +441,9 @@ st.markdown("""
     <div class="footer-column">
         <h3 class="footer-title">AROUND THE WEB</h3>
         <div class="social-links">
-            <a href="https://www.instagram.com/edy_ftrynto/">Instagram</a>
-            <a href="082324403671">Phone</a>
-            <a href="https://www.linkedin.com/in/edy-fitriyanto-12163622a/">LinkedIn</a>
+            <a href="https://www.instagram.com/edy_ftrynto/" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href="tel:+6282324403671">Phone</a>
+            <a href="https://www.linkedin.com/in/edy-fitriyanto-12163622a/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         </div>
     </div>
 
