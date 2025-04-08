@@ -381,16 +381,19 @@ except Exception as e:
     st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
 
 # Tambahkan ini di bagian akhir script Streamlit Anda (setelah bagian except)
+# Tambahkan ini di bagian paling akhir script Streamlit Anda
 st.markdown("""
 <hr style="border:0.5px solid #808080; margin: 20px 0;">
 <div style="display: flex; justify-content: space-between; color: #808080; font-family: Arial, sans-serif;">
     
+    <!-- Kolom Location -->
     <div style="flex: 1; padding: 0 15px;">
         <h3 style="color: #FFFFFF; margin-bottom: 15px;">LOCATION</h3>
         <p style="margin: 5px 0; line-height: 1.5;">3481 Meteor Piece</p>
         <p style="margin: 5px 0; line-height: 1.5;">Beverly Hills, CA 90210</p>
     </div>
 
+    <!-- Kolom Around the Web -->
     <div style="flex: 1; padding: 0 15px;">
         <h3 style="color: #FFFFFF; margin-bottom: 15px;">AROUND THE WEB</h3>
         <div style="display: flex; gap: 15px;">
@@ -400,6 +403,7 @@ st.markdown("""
         </div>
     </div>
 
+    <!-- Kolom About DeltaUser -->
     <div style="flex: 1; padding: 0 15px;">
         <h3 style="color: #FFFFFF; margin-bottom: 15px;">ABOUT DELTAUSER</h3>
         <p style="margin: 5px 0; line-height: 1.5;">DeltaUser is an employee in Freelancer.</p>
@@ -407,6 +411,7 @@ st.markdown("""
 
 </div>
 
+<!-- Copyright Notice -->
 <div style="text-align: center; color: #808080; margin-top: 20px; padding: 10px 0; font-size: 12px;">
     © 2023 DeltaUser. All rights reserved.
 </div>
