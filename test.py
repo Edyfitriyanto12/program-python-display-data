@@ -379,4 +379,36 @@ try:
 
 except Exception as e:
     st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
+
+# Tambahkan footer seperti pada gambar
+st.markdown("""
+<hr style="border:0.5px solid #808080">
+<div style="display: flex; justify-content: space-between; padding: 20px 0; color: #808080">
+    <div style="flex: 1;">
+        <h3 style="color: #FFFFFF;">ABOUT</h3>
+        <p>This template for DeltaUser, the</p>
+        <p>Lorem ipsum dolor sit amet, consectetur</p>
+        <p>temporis contam beseler and foscor and</p>
+        <p>adipiscing elit. At cupidatat nulla mod</p>
+        <p>a responsivie tellib.</p>
+        <p>nam officia quam at reprehenderit</p>
+        <p>voluptus, voluptatem voluptatibus.Nullit</p>
+    </div>
     
+    <div style="flex: 1; padding-left: 20px;">
+        <h3 style="color: #FFFFFF;">LOCATION</h3>
+        <p>3481 Meteor Piece</p>
+        <p>Beverly Hills, CA 90210</p>
+    </div>
+    
+    <div style="flex: 1; padding-left: 20px;">
+        <h3 style="color: #FFFFFF;">AROUND THE WEB</h3>
+        <!-- Tambahkan ikon media sosial di sini jika diperlukan -->
+    </div>
+    
+    <div style="flex: 1; padding-left: 20px;">
+        <h3 style="color: #FFFFFF;">ABOUT DELTAUSER</h3>
+        <p>DeltaUser is an employee in Freelancer.</p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
