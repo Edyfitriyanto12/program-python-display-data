@@ -384,12 +384,15 @@ except Exception as e:
 # Tambahkan ini di bagian paling akhir script Streamlit Anda
 st.markdown("""
 <style>
+    /* CSS untuk Footer */
     .footer-container {
         display: flex;
         justify-content: space-between;
         color: #808080;
         font-family: Arial, sans-serif;
         margin-top: 30px;
+        padding: 20px 0;
+        border-top: 1px solid #808080;
     }
     .footer-column {
         flex: 1;
@@ -398,14 +401,24 @@ st.markdown("""
     .footer-title {
         color: #FFFFFF;
         margin-bottom: 15px;
+        font-size: 18px;
     }
     .footer-text {
         margin: 5px 0;
         line-height: 1.5;
+        font-size: 14px;
     }
     .social-links {
         display: flex;
         gap: 15px;
+    }
+    .social-links a {
+        color: #808080;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    .social-links a:hover {
+        color: #FFFFFF;
     }
     .copyright {
         text-align: center;
@@ -415,8 +428,6 @@ st.markdown("""
         font-size: 12px;
     }
 </style>
-
-<hr style="border:0.5px solid #808080; margin: 20px 0;">
 
 <div class="footer-container">
     <!-- Kolom Location -->
@@ -430,9 +441,9 @@ st.markdown("""
     <div class="footer-column">
         <h3 class="footer-title">AROUND THE WEB</h3>
         <div class="social-links">
-            <a href="#" style="color: #808080; text-decoration: none;">Facebook</a>
-            <a href="#" style="color: #808080; text-decoration: none;">Twitter</a>
-            <a href="#" style="color: #808080; text-decoration: none;">LinkedIn</a>
+            <a href="#">Facebook</a>
+            <a href="#">Twitter</a>
+            <a href="#">LinkedIn</a>
         </div>
     </div>
 
