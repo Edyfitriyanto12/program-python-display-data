@@ -9,7 +9,42 @@ from datetime import datetime
 # HARUS PALING ATAS setelah import
 st.set_page_config(page_title="Data dari Google Sheet", layout="wide")
 
-# Auto-refresh tiap 10 detik
+# Custom CSS untuk teks yang lebih cerah
+st.markdown("""
+<style>
+    /* Judul grafik */
+    .chart-title {
+        color: #ffffff !important;
+        font-weight: bold !important;
+    }
+    
+    /* Label sumbu */
+    .x-axis-label, .y-axis-label {
+        fill: #ffffff !important;
+    }
+    
+    /* Legenda */
+    .legend-text {
+        fill: #ffffff !important;
+    }
+    
+    /* Tooltip */
+    .tooltip {
+        color: #333333 !important;
+        background-color: #ffffff !important;
+    }
+    
+    /* Highlight untuk tabel */
+    .highlight-example {
+        background-color: rgba(100, 149, 237, 0.6);
+        padding: 5px;
+        border-radius: 3px;
+        font-weight: bold;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Auto-refresh tiap 15 detik
 st_autorefresh(interval=15 * 1000, key="auto_refresh")
 
 st.title("📊 Monitoring Real-time")
@@ -81,13 +116,42 @@ def create_temperature_chart(df):
     # Temukan kolom output fuzzy
     fuzzy_columns = [col for col in df.columns if 'fuzzy' in col.lower() or 'output' in col.lower()]
     
-    # Buat line chart
+    # Buat line chart dengan tema dark
     line_chart = (
-        Line()
+        Line(init_opts=opts.InitOpts(theme="dark"))
         .add_xaxis(timestamps)
         .set_global_opts(
-            title_opts=opts.TitleOpts(title="Nilai Parameter"),
-            tooltip_opts=opts.TooltipOpts(trigger="axis"),
+            title_opts=opts.TitleOpts(
+                title="Nilai Parameter Suhu",
+                title_textstyle_opts=opts.TextStyleOpts(color="#FFFFFF", font_weight="bold")
+            ),
+            tooltip_opts=opts.TooltipOpts(
+                trigger="axis",
+                background_color="#FFFFFF",
+                border_color="#333333",
+                textstyle_opts=opts.TextStyleOpts(color="#333333")
+            ),
+            legend_opts=opts.LegendOpts(
+                textstyle_opts=opts.TextStyleOpts(color="#FFFFFF")
+            ),
+            xaxis_opts=opts.AxisOpts(
+                name="Timestamp",
+                axislabel_opts=opts.LabelOpts(
+                    rotate=45,
+                    color="#FFFFFF"
+                ),
+                axisline_opts=opts.AxisLineOpts(
+                    linestyle_opts=opts.LineStyleOpts(color="#FFFFFF")
+                )
+            ),
+            yaxis_opts=opts.AxisOpts(
+                name="Suhu (°C) dan Output Fuzzy",
+                splitline_opts=opts.SplitLineOpts(is_show=True),
+                axislabel_opts=opts.LabelOpts(color="#FFFFFF"),
+                axisline_opts=opts.AxisLineOpts(
+                    linestyle_opts=opts.LineStyleOpts(color="#FFFFFF")
+                )
+            ),
             toolbox_opts=opts.ToolboxOpts(
                 feature={
                     "saveAsImage": {},
@@ -96,13 +160,6 @@ def create_temperature_chart(df):
                     "dataZoom": {},
                     "magicType": {"show": True, "type": ["line", "bar"]},
                 }
-            ),
-            xaxis_opts=opts.AxisOpts(
-                name="Timestamp",
-                axislabel_opts=opts.LabelOpts(rotate=45)),
-            yaxis_opts=opts.AxisOpts(
-                name="Suhu (°C) dan Output Fuzzy",
-                splitline_opts=opts.SplitLineOpts(is_show=True),
             ),
             datazoom_opts=[opts.DataZoomOpts()]
         )
@@ -180,13 +237,42 @@ def create_energy_chart(df):
     current_columns = [col for col in df.columns if 'ampere' in col.lower() or 'current' in col.lower()]
     freq_columns = [col for col in df.columns if 'frekuensi' in col.lower() or 'freq' in col.lower()]
     
-    # Buat line chart
+    # Buat line chart dengan tema dark
     line_chart = (
-        Line()
+        Line(init_opts=opts.InitOpts(theme="dark"))
         .add_xaxis(timestamps)
         .set_global_opts(
-            title_opts=opts.TitleOpts(title="Data Parameter Energi"),
-            tooltip_opts=opts.TooltipOpts(trigger="axis"),
+            title_opts=opts.TitleOpts(
+                title="Data Parameter Energi",
+                title_textstyle_opts=opts.TextStyleOpts(color="#FFFFFF", font_weight="bold")
+            ),
+            tooltip_opts=opts.TooltipOpts(
+                trigger="axis",
+                background_color="#FFFFFF",
+                border_color="#333333",
+                textstyle_opts=opts.TextStyleOpts(color="#333333")
+            ),
+            legend_opts=opts.LegendOpts(
+                textstyle_opts=opts.TextStyleOpts(color="#FFFFFF")
+            ),
+            xaxis_opts=opts.AxisOpts(
+                name="Timestamp",
+                axislabel_opts=opts.LabelOpts(
+                    rotate=45,
+                    color="#FFFFFF"
+                ),
+                axisline_opts=opts.AxisLineOpts(
+                    linestyle_opts=opts.LineStyleOpts(color="#FFFFFF")
+                )
+            ),
+            yaxis_opts=opts.AxisOpts(
+                name="Nilai Parameter",
+                splitline_opts=opts.SplitLineOpts(is_show=True),
+                axislabel_opts=opts.LabelOpts(color="#FFFFFF"),
+                axisline_opts=opts.AxisLineOpts(
+                    linestyle_opts=opts.LineStyleOpts(color="#FFFFFF")
+                )
+            ),
             toolbox_opts=opts.ToolboxOpts(
                 feature={
                     "saveAsImage": {},
@@ -195,13 +281,6 @@ def create_energy_chart(df):
                     "dataZoom": {},
                     "magicType": {"show": True, "type": ["line", "bar"]},
                 }
-            ),
-            xaxis_opts=opts.AxisOpts(
-                name="Timestamp",
-                axislabel_opts=opts.LabelOpts(rotate=45)),
-            yaxis_opts=opts.AxisOpts(
-                name="Nilai Parameter",
-                splitline_opts=opts.SplitLineOpts(is_show=True),
             ),
             datazoom_opts=[opts.DataZoomOpts()]
         )
@@ -270,17 +349,19 @@ try:
     df = pd.read_csv(spreadsheet_url)
     st.success("✅ Data berhasil dimuat dan auto-refresh tiap 15 detik.")
     
-    # Tampilkan grafik suhu
-    st.header("📈 Visualisasi Grafik Suhu dan Output Fuzzy")
-    temp_chart = create_temperature_chart(df)
-    if temp_chart:
-        st_pyecharts(temp_chart, height="500px")
+    # Tampilkan grafik suhu dalam container
+    with st.container():
+        st.header("📈 Visualisasi Grafik Suhu dan Output Fuzzy")
+        temp_chart = create_temperature_chart(df)
+        if temp_chart:
+            st_pyecharts(temp_chart, height="500px", theme="dark")
     
-    # Tampilkan grafik energi
-    st.header("⚡ Visualisasi Grafik Parameter Energi")
-    energy_chart = create_energy_chart(df)
-    if energy_chart:
-        st_pyecharts(energy_chart, height="500px")
+    # Tampilkan grafik energi dalam container
+    with st.container():
+        st.header("⚡ Visualisasi Grafik Parameter Energi")
+        energy_chart = create_energy_chart(df)
+        if energy_chart:
+            st_pyecharts(energy_chart, height="500px", theme="dark")
     
     # Tampilkan tabel data
     df_display = df.drop(columns=["parsed_timestamp"], errors="ignore")
@@ -293,14 +374,6 @@ try:
 
     # Tambahkan penjelasan
     st.markdown("""
-    <style>
-        .highlight-example {
-            background-color: rgba(100, 149, 237, 0.6);
-            padding: 5px;
-            border-radius: 3px;
-            font-weight: bold;
-        }
-    </style>
     <p>Baris dengan <span class="highlight-example">warna biru transparan</span> menunjukkan terdapat suhu antara 60-70°C pada salah satu sensor</p>
     """, unsafe_allow_html=True)
 
