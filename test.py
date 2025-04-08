@@ -450,7 +450,7 @@ st.markdown("""
 <div class="footer-container">
     <div class="footer-column">
         <h3 class="footer-title">LOCATION</h3>
-        <p class="footer-text",<br>54261 Bruno,Purworejo, Central Java</p>
+        <p class="footer-text",<br> Bruno,Purworejo, Central Java (54261)</p>
     </div>
     <div class="footer-column">
         <h3 class="footer-title">AROUND THE WEB</h3>
