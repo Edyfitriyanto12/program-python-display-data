@@ -384,96 +384,85 @@ except Exception as e:
 import streamlit as st
 
 st.markdown("""
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-    /* CSS untuk Footer */
     .footer-container {
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
-        align-items: flex-start;
-        background-color: #0e1117;
-        color: #808080;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        padding: 30px 20px;
-        margin-top: 50px;
-        border-top: 1px solid #404040;
+        background-color: #2C3E50;
+        color: #ffffff;
+        font-family: Arial, sans-serif;
+        padding: 40px 20px 20px 20px;
     }
 
     .footer-column {
-        flex: 1 1 250px;
-        padding: 10px 15px;
+        flex: 1 1 30%;
+        min-width: 200px;
+        padding: 10px 20px;
         box-sizing: border-box;
     }
 
     .footer-title {
-        color: #FFFFFF;
-        margin-bottom: 10px;
-        font-size: 18px;
+        color: #ffffff;
+        margin-bottom: 20px;
+        font-size: 16px;
         font-weight: bold;
     }
 
     .footer-text {
-        margin: 6px 0;
-        line-height: 1.6;
+        color: #bdc3c7;
         font-size: 14px;
-        color: #A0A0A0;
+        line-height: 1.5;
     }
 
-    .social-links {
+    .social-icons {
         display: flex;
-        flex-direction: column;
-        gap: 6px;
+        gap: 15px;
+        align-items: center;
     }
 
-    .social-links a {
-        color: #808080;
+    .social-icons a {
+        color: #ffffff;
+        background-color: #1abc9c;
+        border-radius: 50%;
+        padding: 10px;
+        font-size: 16px;
+        text-align: center;
         text-decoration: none;
-        font-size: 14px;
-        transition: color 0.3s ease;
+        transition: background-color 0.3s;
     }
 
-    .social-links a:hover {
-        color: #FFFFFF;
+    .social-icons a:hover {
+        background-color: #16a085;
     }
 
     .copyright {
+        background-color: #233140;
         text-align: center;
-        color: #707070;
-        font-size: 13px;
-        margin-top: 25px;
+        color: #bdc3c7;
         padding: 15px 0;
-        border-top: 1px solid #303030;
-    }
-
-    @media (max-width: 600px) {
-        .footer-column {
-            flex: 1 1 100%;
-        }
+        font-size: 13px;
     }
 </style>
 
 <div class="footer-container">
-    <!-- Kolom Location -->
     <div class="footer-column">
         <h3 class="footer-title">LOCATION</h3>
-        <p class="footer-text">3481 Meteor Place,</p>
-        <p class="footer-text">Beverly Hills, CA 90210</p>
+        <p class="footer-text">3481 Meteor Piece,<br>Beverly Hills, CA 90210</p>
     </div>
-
-    <!-- Kolom Around the Web -->
     <div class="footer-column">
         <h3 class="footer-title">AROUND THE WEB</h3>
-        <div class="social-links">
-            <a href="https://www.instagram.com/edy_ftrynto/" target="_blank" rel="noopener noreferrer">Instagram</a>
-            <a href="tel:+6282324403671">Phone</a>
-            <a href="https://www.linkedin.com/in/edy-fitriyanto-12163622a/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <div class="social-icons">
+            <a href="https://www.instagram.com/edy_ftrynto/" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="tel:+6282324403671"><i class="fas fa-phone"></i></a>
+            <a href="https://www.linkedin.com/in/edy-fitriyanto-12163622a/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
         </div>
     </div>
-
-    <!-- Kolom About DeltaUser -->
     <div class="footer-column">
         <h3 class="footer-title">ABOUT DELTAUSER</h3>
-        <p class="footer-text">DeltaUser is a freelancer and passionate developer.</p>
+        <p class="footer-text">DeltaUser is an employee in Freelancer.</p>
     </div>
 </div>
 
@@ -481,3 +470,4 @@ st.markdown("""
     © 2023 DeltaUser. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
