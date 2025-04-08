@@ -381,7 +381,6 @@ except Exception as e:
     st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
 
 # Tambahkan ini di bagian akhir script Streamlit Anda (setelah bagian except)
-
 st.markdown("""
 <hr style="border:0.5px solid #808080; margin: 20px 0;">
 <div style="display: flex; justify-content: space-between; color: #808080; font-family: Arial, sans-serif;">
