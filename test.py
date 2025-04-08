@@ -462,7 +462,7 @@ st.markdown("""
     </div>
     <div class="footer-column">
         <h3 class="footer-title">ABOUT DELTAUSER</h3>
-        <p class="footer-text">DeltaUser is an employee in Freelancer.</p>
+        <p class="footer-text">DeltaUser is a content creator focused on delivering educational resources in programming, IoT, and modern web technologies.</p>
     </div>
 </div>
 
