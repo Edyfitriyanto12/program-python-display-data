@@ -381,12 +381,12 @@ try:
 except Exception as e:
     st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
 
-# Tambahkan ini di bagian paling akhir script Streamlit Anda
 st.markdown("""
 <style>
     /* CSS untuk Footer */
     .footer-container {
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
         color: #808080;
         font-family: Arial, sans-serif;
@@ -394,38 +394,51 @@ st.markdown("""
         padding: 20px 0;
         border-top: 1px solid #808080;
     }
+
     .footer-column {
-        flex: 1;
+        flex: 1 1 30%;
+        min-width: 200px;
         padding: 0 15px;
+        box-sizing: border-box;
     }
+
     .footer-title {
         color: #FFFFFF;
         margin-bottom: 15px;
         font-size: 18px;
     }
+
     .footer-text {
         margin: 5px 0;
         line-height: 1.5;
         font-size: 14px;
+        color: #808080;
     }
+
     .social-links {
         display: flex;
-        gap: 15px;
+        flex-direction: column;
+        gap: 8px;
     }
+
     .social-links a {
         color: #808080;
         text-decoration: none;
         transition: color 0.3s;
+        font-size: 14px;
     }
+
     .social-links a:hover {
         color: #FFFFFF;
     }
+
     .copyright {
         text-align: center;
         color: #808080;
         margin-top: 20px;
         padding: 10px 0;
         font-size: 12px;
+        border-top: 1px solid #404040;
     }
 </style>
 
@@ -433,7 +446,7 @@ st.markdown("""
     <!-- Kolom Location -->
     <div class="footer-column">
         <h3 class="footer-title">LOCATION</h3>
-        <p class="footer-text">3481 Meteor Piece</p>
+        <p class="footer-text">3481 Meteor Piece,</p>
         <p class="footer-text">Beverly Hills, CA 90210</p>
     </div>
 
