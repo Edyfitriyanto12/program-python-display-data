@@ -7,85 +7,39 @@ from streamlit_echarts import st_pyecharts
 from datetime import datetime
 
 # HARUS PALING ATAS setelah import
-st.set_page_config(
-    page_title="Monitoring Real-time Pengering Cerdas", 
-    layout="wide",
-    page_icon="🌡️"
-)
+st.set_page_config(page_title="Data dari Google Sheet", layout="wide")
 
-# ===========================================
-# CSS CUSTOM UNTUK SEMUA KOMPONEN
-# ===========================================
+# Custom CSS untuk teks yang lebih cerah
 st.markdown("""
 <style>
-    /* [DARK MODE ADAPTIVE STYLES] */
-    :root {
-        --primary-text: #31333F;
-        --secondary-text: #6C757D;
-        --bg-color: #FFFFFF;
-        --card-bg: #F8F9FA;
-        --border-color: #DEE2E6;
+    /* Judul grafik */
+    .chart-title {
+        color: #ffffff !important;
+        font-weight: bold !important;
     }
     
-    [data-theme="dark"] {
-        --primary-text: #F0F2F6;
-        --secondary-text: #ADB5BD;
-        --bg-color: #0E1117;
-        --card-bg: #1E1E1E;
-        --border-color: #444444;
+    /* Label sumbu */
+    .x-axis-label, .y-axis-label {
+        fill: #ffffff !important;
     }
     
-    /* [UMUM] */
-    .stApp {
-        background-color: var(--bg-color);
+    /* Legenda */
+    .legend-text {
+        fill: #ffffff !important;
     }
     
-    /* [HEADER] */
-    .header-title {
-        color: var(--primary-text);
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 10px;
-    }
-    
-    /* [TABEL] */
-    .dataframe {
-        border: 1px solid var(--border-color) !important;
-    }
-    
-    /* [FOOTER] */
-    .footer {
-        background-color: var(--card-bg);
-        padding: 2rem;
-        margin-top: 3rem;
-        border-top: 1px solid var(--border-color);
-    }
-    .footer-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 2rem;
-    }
-    .footer-col-title {
-        color: var(--primary-text);
-        font-weight: 600;
-        margin-bottom: 1rem;
-        font-size: 1.1rem;
-    }
-    .footer-col-text {
-        color: var(--secondary-text);
-        line-height: 1.6;
-        font-size: 0.9rem;
-    }
-    .footer-copyright {
-        text-align: center;
-        margin-top: 2rem;
-        color: var(--secondary-text);
-        font-size: 0.8rem;
-    }
-    
-    /* [TOOLTIP GRAFIK] */
+    /* Tooltip */
     .tooltip {
         color: #333333 !important;
-        background-color: #FFFFFF !important;
+        background-color: #ffffff !important;
+    }
+    
+    /* Highlight untuk tabel */
+    .highlight-example {
+        background-color: rgba(100, 149, 237, 0.6);
+        padding: 5px;
+        border-radius: 3px;
+        font-weight: bold;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -93,12 +47,12 @@ st.markdown("""
 # Auto-refresh tiap 15 detik
 st_autorefresh(interval=15 * 1000, key="auto_refresh")
 
-# ===========================================
-# FUNGSI UTAMA
-# ===========================================
+st.title("📊 Monitoring Real-time Pengering Cerdas")
+
 spreadsheet_url = "https://docs.google.com/spreadsheets/d/1aFLGmvdviHrPQyKeFcD1jdZU9A3g_RJEMP8X_iMCA7s/export?format=csv"
 
 def highlight_temp(row):
+    """Fungsi untuk memberikan warna biru transparan pada seluruh baris jika suhu antara 60-70°C"""
     highlight = False
     for col in row.index:
         if 'suhu' in col.lower() or 'temp' in col.lower():
@@ -116,10 +70,13 @@ def highlight_temp(row):
         return [''] * len(row)
 
 def parse_timestamp(timestamp_str):
+    """Fungsi untuk mengkonversi string timestamp ke format datetime yang seragam"""
     try:
+        # Coba format dengan AM/PM
         if isinstance(timestamp_str, str):
             if 'AM' in timestamp_str or 'PM' in timestamp_str:
                 return datetime.strptime(timestamp_str, '%m/%d/%Y, %I:%M:%S %p')
+            # Coba format 24 jam
             else:
                 return datetime.strptime(timestamp_str, '%m/%d/%Y, %H:%M:%S')
         elif isinstance(timestamp_str, datetime):
@@ -130,24 +87,43 @@ def parse_timestamp(timestamp_str):
         st.warning(f"Gagal parsing timestamp: {timestamp_str}. Error: {e}")
         return None
 
-def create_chart(df, title, y_axis_name, series_config):
-    """Fungsi universal untuk membuat grafik"""
-    df['parsed_timestamp'] = df['timestamp'].apply(parse_timestamp)
-    df = df.dropna(subset=['parsed_timestamp']).sort_values('parsed_timestamp')
+def create_temperature_chart(df):
+    """Membuat grafik line chart untuk suhu dan output fuzzy"""
+    # Cari kolom timestamp (case insensitive)
+    timestamp_cols = [col for col in df.columns if 'timestamp' in col.lower()]
+    
+    timestamp_col = timestamp_cols[0]  # Ambil kolom pertama yang mengandung 'timestamp'
+    
+    # Konversi timestamp ke format datetime
+    df['parsed_timestamp'] = df[timestamp_col].apply(parse_timestamp)
+    
+    # Drop baris dengan timestamp tidak valid
+    df = df.dropna(subset=['parsed_timestamp'])
     
     if df.empty:
         st.error("Tidak ada data dengan timestamp valid!")
         return None
     
+    # Urutkan berdasarkan timestamp
+    df = df.sort_values('parsed_timestamp')
+    
+    # Format timestamp untuk display di grafik
     timestamps = df['parsed_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').tolist()
     
+    # Temukan semua kolom suhu
+    temp_columns = [col for col in df.columns if 'suhu' in col.lower() or 'temp' in col.lower()]
+    
+    # Temukan kolom output fuzzy
+    fuzzy_columns = [col for col in df.columns if 'fuzzy' in col.lower() or 'output' in col.lower()]
+    
+    # Buat line chart dengan tema dark
     line_chart = (
-        Line(init_opts=opts.InitOpts(theme="dark" if st._config.get_option("theme.base") == "dark" else "light"))
+        Line(init_opts=opts.InitOpts(theme="dark"))
         .add_xaxis(timestamps)
         .set_global_opts(
             title_opts=opts.TitleOpts(
-                title=title,
-                title_textstyle_opts=opts.TextStyleOpts(color="#FFFFFF" if st._config.get_option("theme.base") == "dark" else "#333333")
+                title="Nilai Parameter Suhu",
+                title_textstyle_opts=opts.TextStyleOpts(color="#FFFFFF", font_weight="bold")
             ),
             tooltip_opts=opts.TooltipOpts(
                 trigger="axis",
@@ -155,135 +131,252 @@ def create_chart(df, title, y_axis_name, series_config):
                 border_color="#333333",
                 textstyle_opts=opts.TextStyleOpts(color="#333333")
             ),
+            legend_opts=opts.LegendOpts(
+                textstyle_opts=opts.TextStyleOpts(color="#FFFFFF")
+            ),
             xaxis_opts=opts.AxisOpts(
-                name="Waktu",
-                axislabel_opts=opts.LabelOpts(rotate=45, color="#FFFFFF" if st._config.get_option("theme.base") == "dark" else "#333333"),
-                axisline_opts=opts.AxisLineOpts(linestyle_opts=opts.LineStyleOpts(color="#FFFFFF" if st._config.get_option("theme.base") == "dark" else "#333333"))
+                name="Timestamp",
+                axislabel_opts=opts.LabelOpts(
+                    rotate=45,
+                    color="#FFFFFF"
+                ),
+                axisline_opts=opts.AxisLineOpts(
+                    linestyle_opts=opts.LineStyleOpts(color="#FFFFFF")
+                )
             ),
             yaxis_opts=opts.AxisOpts(
-                name=y_axis_name,
-                axislabel_opts=opts.LabelOpts(color="#FFFFFF" if st._config.get_option("theme.base") == "dark" else "#333333"),
-                axisline_opts=opts.AxisLineOpts(linestyle_opts=opts.LineStyleOpts(color="#FFFFFF" if st._config.get_option("theme.base") == "dark" else "#333333"))
+                name="Suhu (°C) dan Output Fuzzy",
+                splitline_opts=opts.SplitLineOpts(is_show=True),
+                axislabel_opts=opts.LabelOpts(color="#FFFFFF"),
+                axisline_opts=opts.AxisLineOpts(
+                    linestyle_opts=opts.LineStyleOpts(color="#FFFFFF")
+                )
+            ),
+            toolbox_opts=opts.ToolboxOpts(
+                feature={
+                    "saveAsImage": {},
+                    "dataView": {},
+                    "restore": {},
+                    "dataZoom": {},
+                    "magicType": {"show": True, "type": ["line", "bar"]},
+                }
             ),
             datazoom_opts=[opts.DataZoomOpts()]
         )
     )
     
-    for config in series_config:
-        line_chart.add_yaxis(**config)
+    # Tambahkan series untuk suhu
+    for col in temp_columns:
+        if col != timestamp_col:  # Hindari memplot kolom timestamp sebagai suhu
+            line_chart.add_yaxis(
+                series_name=col,
+                y_axis=df[col].tolist(),
+                is_smooth=True,
+                label_opts=opts.LabelOpts(is_show=False),
+                markpoint_opts=opts.MarkPointOpts(
+                    data=[
+                        opts.MarkPointItem(type_="max", name="Max"),
+                        opts.MarkPointItem(type_="min", name="Min"),
+                    ]
+                ),
+                markline_opts=opts.MarkLineOpts(
+                    data=[
+                        opts.MarkLineItem(type_="average", name="Average"),
+                        opts.MarkLineItem(y=60, name="Batas Bawah"),
+                        opts.MarkLineItem(y=70, name="Batas Atas"),
+                    ]
+                ),
+            )
+    
+    # Tambahkan series untuk output fuzzy
+    for col in fuzzy_columns:
+        line_chart.add_yaxis(
+            series_name=col,
+            y_axis=df[col].tolist(),
+            is_smooth=True,
+            linestyle_opts=opts.LineStyleOpts(width=3, type_="dashed"),
+            label_opts=opts.LabelOpts(is_show=False),
+            itemstyle_opts=opts.ItemStyleOpts(color="#FF6347"),
+            markpoint_opts=opts.MarkPointOpts(
+                data=[
+                    opts.MarkPointItem(type_="max", name="Max"),
+                    opts.MarkPointItem(type_="min", name="Min"),
+                ]
+            ),
+            markline_opts=opts.MarkLineOpts(
+                data=[opts.MarkLineItem(type_="average", name="Average")]
+            ),
+        )
     
     return line_chart
 
-# ===========================================
-# TAMPILAN UTAMA
-# ===========================================
-st.title("🌡️ Monitoring Real-time Pengering Cerdas")
+def create_energy_chart(df):
+    """Membuat grafik line chart untuk parameter energi (tegangan, ampere, frekuensi)"""
+    # Pastikan kolom timestamp sudah di-parse
+    if 'parsed_timestamp' not in df.columns:
+        timestamp_cols = [col for col in df.columns if 'timestamp' in col.lower()]
+        if not timestamp_cols:
+            st.error("Kolom timestamp tidak ditemukan dalam data!")
+            return None
+        
+        df['parsed_timestamp'] = df[timestamp_cols[0]].apply(parse_timestamp)
+        df = df.dropna(subset=['parsed_timestamp'])
+    
+    if df.empty:
+        st.error("Tidak ada data dengan timestamp valid!")
+        return None
+    
+    # Urutkan berdasarkan timestamp
+    df = df.sort_values('parsed_timestamp')
+    
+    # Format timestamp untuk display di grafik
+    timestamps = df['parsed_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').tolist()
+    
+    # Temukan kolom energi (case insensitive)
+    voltage_columns = [col for col in df.columns if 'volt' in col.lower() or 'tegangan' in col.lower()]
+    current_columns = [col for col in df.columns if 'ampere' in col.lower() or 'current' in col.lower()]
+    freq_columns = [col for col in df.columns if 'frekuensi' in col.lower() or 'freq' in col.lower()]
+    
+    # Buat line chart dengan tema dark
+    line_chart = (
+        Line(init_opts=opts.InitOpts(theme="dark"))
+        .add_xaxis(timestamps)
+        .set_global_opts(
+            title_opts=opts.TitleOpts(
+                title="Data Parameter Energi",
+                title_textstyle_opts=opts.TextStyleOpts(color="#FFFFFF", font_weight="bold")
+            ),
+            tooltip_opts=opts.TooltipOpts(
+                trigger="axis",
+                background_color="#FFFFFF",
+                border_color="#333333",
+                textstyle_opts=opts.TextStyleOpts(color="#333333")
+            ),
+            legend_opts=opts.LegendOpts(
+                textstyle_opts=opts.TextStyleOpts(color="#FFFFFF")
+            ),
+            xaxis_opts=opts.AxisOpts(
+                name="Timestamp",
+                axislabel_opts=opts.LabelOpts(
+                    rotate=45,
+                    color="#FFFFFF"
+                ),
+                axisline_opts=opts.AxisLineOpts(
+                    linestyle_opts=opts.LineStyleOpts(color="#FFFFFF")
+                )
+            ),
+            yaxis_opts=opts.AxisOpts(
+                name="Nilai Parameter",
+                splitline_opts=opts.SplitLineOpts(is_show=True),
+                axislabel_opts=opts.LabelOpts(color="#FFFFFF"),
+                axisline_opts=opts.AxisLineOpts(
+                    linestyle_opts=opts.LineStyleOpts(color="#FFFFFF")
+                )
+            ),
+            toolbox_opts=opts.ToolboxOpts(
+                feature={
+                    "saveAsImage": {},
+                    "dataView": {},
+                    "restore": {},
+                    "dataZoom": {},
+                    "magicType": {"show": True, "type": ["line", "bar"]},
+                }
+            ),
+            datazoom_opts=[opts.DataZoomOpts()]
+        )
+    )
+    
+    # Tambahkan series untuk tegangan
+    for col in voltage_columns:
+        line_chart.add_yaxis(
+            series_name=col,
+            y_axis=df[col].tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            itemstyle_opts=opts.ItemStyleOpts(color="#1E90FF"),  # Warna biru
+            markpoint_opts=opts.MarkPointOpts(
+                data=[
+                    opts.MarkPointItem(type_="max", name="Max"),
+                    opts.MarkPointItem(type_="min", name="Min"),
+                ]
+            ),
+            markline_opts=opts.MarkLineOpts(
+                data=[opts.MarkLineItem(type_="average", name="Rata-rata")]
+            ),
+        )
+    
+    # Tambahkan series untuk ampere
+    for col in current_columns:
+        line_chart.add_yaxis(
+            series_name=col,
+            y_axis=df[col].tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            itemstyle_opts=opts.ItemStyleOpts(color="#32CD32"),  # Warna hijau
+            markpoint_opts=opts.MarkPointOpts(
+                data=[
+                    opts.MarkPointItem(type_="max", name="Max"),
+                    opts.MarkPointItem(type_="min", name="Min"),
+                ]
+            ),
+            markline_opts=opts.MarkLineOpts(
+                data=[opts.MarkLineItem(type_="average", name="Rata-rata")]
+            ),
+        )
+    
+    # Tambahkan series untuk frekuensi
+    for col in freq_columns:
+        line_chart.add_yaxis(
+            series_name=col,
+            y_axis=df[col].tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            itemstyle_opts=opts.ItemStyleOpts(color="#FF6347"),  # Warna merah
+            markpoint_opts=opts.MarkPointOpts(
+                data=[
+                    opts.MarkPointItem(type_="max", name="Max"),
+                    opts.MarkPointItem(type_="min", name="Min"),
+                ]
+            ),
+            markline_opts=opts.MarkLineOpts(
+                data=[opts.MarkLineItem(type_="average", name="Rata-rata")]
+            ),
+        )
+    
+    return line_chart
 
 try:
     df = pd.read_csv(spreadsheet_url)
-    st.success("✅ Data berhasil dimuat. Pembaruan otomatis setiap 15 detik.")
+    st.success("✅ Data berhasil dimuat dan auto-refresh tiap 15 detik.")
     
-    # Grafik Suhu
+    # Tampilkan grafik suhu dalam container
     with st.container():
-        st.header("📊 Grafik Suhu dan Output Fuzzy")
-        temp_chart = create_chart(
-            df,
-            "Trend Suhu dan Output Fuzzy",
-            "Nilai (°C)",
-            [
-                {
-                    "series_name": col,
-                    "y_axis": df[col].tolist(),
-                    "is_smooth": True,
-                    "label_opts": opts.LabelOpts(is_show=False),
-                    "itemstyle_opts": opts.ItemStyleOpts(color="#FF6347"),
-                    "markline_opts": opts.MarkLineOpts(data=[opts.MarkLineItem(type_="average")])
-                } for col in df.columns if 'suhu' in col.lower() or 'temp' in col.lower()
-            ] + [
-                {
-                    "series_name": col,
-                    "y_axis": df[col].tolist(),
-                    "is_smooth": True,
-                    "linestyle_opts": opts.LineStyleOpts(width=3, type_="dashed"),
-                    "label_opts": opts.LabelOpts(is_show=False),
-                    "itemstyle_opts": opts.ItemStyleOpts(color="#1E90FF"),
-                } for col in df.columns if 'fuzzy' in col.lower() or 'output' in col.lower()
-            ]
-        )
+        st.header("📈 Visualisasi Grafik Suhu dan Output Fuzzy")
+        temp_chart = create_temperature_chart(df)
         if temp_chart:
-            st_pyecharts(temp_chart, height=500)
-
-    # Grafik Energi
+            st_pyecharts(temp_chart, height="500px", theme="dark")
+    
+    # Tampilkan grafik energi dalam container
     with st.container():
-        st.header("⚡ Grafik Parameter Energi")
-        energy_chart = create_chart(
-            df,
-            "Trend Parameter Energi",
-            "Nilai",
-            [
-                {
-                    "series_name": col,
-                    "y_axis": df[col].tolist(),
-                    "is_smooth": True,
-                    "label_opts": opts.LabelOpts(is_show=False),
-                    "itemstyle_opts": opts.ItemStyleOpts(color=color),
-                    "markline_opts": opts.MarkLineOpts(data=[opts.MarkLineItem(type_="average")])
-                } 
-                for col, color in zip(
-                    [c for c in df.columns if any(x in c.lower() for x in ['volt', 'ampere', 'frekuensi'])],
-                    ["#FFA500", "#32CD32", "#9370DB"]
-                )
-            ]
-        )
+        st.header("⚡ Visualisasi Grafik Parameter Energi")
+        energy_chart = create_energy_chart(df)
         if energy_chart:
-            st_pyecharts(energy_chart, height=500)
+            st_pyecharts(energy_chart, height="500px", theme="dark")
+    
+    # Tampilkan tabel data
+    df_display = df.drop(columns=["parsed_timestamp"], errors="ignore")
 
-    # Tabel Data
-    with st.container():
-        st.header("📋 Data Terkini")
-        df_display = df.drop(columns=["parsed_timestamp"], errors="ignore")
-        st.dataframe(
-            df_display.style.apply(highlight_temp, axis=1).format(precision=2),
-            use_container_width=True,
-            height=400
-        )
-        st.caption("Baris berwarna biru menunjukkan suhu dalam range 60-70°C")
+    st.header("📄 Data Tabel")
+    styled_df = df_display.style \
+        .apply(highlight_temp, axis=1) \
+        .format(precision=1)
+    st.dataframe(styled_df, use_container_width=True)
 
-    # FOOTER
+    # Tambahkan penjelasan
     st.markdown("""
-    <div class="footer">
-        <div class="footer-grid">
-            <div>
-                <div class="footer-col-title">Tentang Sistem</div>
-                <div class="footer-col-text">
-                    Sistem monitoring real-time untuk pengering cerdas berbasis IoT. 
-                    Memantau parameter suhu, kelembaban, dan konsumsi energi.
-                </div>
-            </div>
-            <div>
-                <div class="footer-col-title">Kontak</div>
-                <div class="footer-col-text">
-                    Lab. Sistem Cerdas<br>
-                    Universitas Contoh<br>
-                    Jl. Teknologi No. 123<br>
-                    contact@contoh.ac.id
-                </div>
-            </div>
-            <div>
-                <div class="footer-col-title">Dikembangkan Oleh</div>
-                <div class="footer-col-text">
-                    Tim Pengering Cerdas 2023<br>
-                    Advisor: Dr. Insinyur Contoh<br>
-                    Versi Sistem: 2.1.0
-                </div>
-            </div>
-        </div>
-        <div class="footer-copyright">
-            © 2023 Sistem Pengering Cerdas | All Rights Reserved
-        </div>
-    </div>
+    <p>Baris dengan <span class="highlight-example">warna biru transparan</span> menunjukkan terdapat suhu antara 60-70°C pada salah satu sensor</p>
     """, unsafe_allow_html=True)
 
 except Exception as e:
-    st.error(f"❌ Gagal memuat data: {str(e)}")
-    st.error("Pastikan koneksi internet stabil dan URL spreadsheet benar.")
+    st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
+    
