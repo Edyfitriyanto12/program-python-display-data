@@ -47,7 +47,7 @@ st.markdown("""
 # Auto-refresh tiap 15 detik
 st_autorefresh(interval=15 * 1000, key="auto_refresh")
 
-st.title("📊 Monitoring Real-time")
+st.title("📊 Monitoring Real-time Pengering Cerdas")
 
 spreadsheet_url = "https://docs.google.com/spreadsheets/d/1aFLGmvdviHrPQyKeFcD1jdZU9A3g_RJEMP8X_iMCA7s/export?format=csv"
 
