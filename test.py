@@ -456,7 +456,7 @@ st.markdown("""
         <h3 class="footer-title">AROUND THE WEB</h3>
         <div class="social-icons">
             <a href="https://www.instagram.com/edy_ftrynto/" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="tel:+6282324403671"><i class="fas fa-phone"></i></a>
+           // <a href="tel:+6282324403671"><i class="fas fa-phone"></i></a>
             <a href="https://www.linkedin.com/in/edy-fitriyanto-12163622a/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
         </div>
     </div>
