@@ -380,35 +380,35 @@ try:
 except Exception as e:
     st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
 
-# Tambahkan footer seperti pada gambar
+# Tambahkan ini di bagian akhir script Streamlit Anda (setelah bagian except)
+
 st.markdown("""
-<hr style="border:0.5px solid #808080">
-<div style="display: flex; justify-content: space-between; padding: 20px 0; color: #808080">
-    <div style="flex: 1;">
-        <h3 style="color: #FFFFFF;">ABOUT</h3>
-        <p>This template for DeltaUser, the</p>
-        <p>Lorem ipsum dolor sit amet, consectetur</p>
-        <p>temporis contam beseler and foscor and</p>
-        <p>adipiscing elit. At cupidatat nulla mod</p>
-        <p>a responsivie tellib.</p>
-        <p>nam officia quam at reprehenderit</p>
-        <p>voluptus, voluptatem voluptatibus.Nullit</p>
-    </div>
+<hr style="border:0.5px solid #808080; margin: 20px 0;">
+<div style="display: flex; justify-content: space-between; color: #808080; font-family: Arial, sans-serif;">
     
-    <div style="flex: 1; padding-left: 20px;">
-        <h3 style="color: #FFFFFF;">LOCATION</h3>
-        <p>3481 Meteor Piece</p>
-        <p>Beverly Hills, CA 90210</p>
+    <div style="flex: 1; padding: 0 15px;">
+        <h3 style="color: #FFFFFF; margin-bottom: 15px;">LOCATION</h3>
+        <p style="margin: 5px 0; line-height: 1.5;">3481 Meteor Piece</p>
+        <p style="margin: 5px 0; line-height: 1.5;">Beverly Hills, CA 90210</p>
     </div>
-    
-    <div style="flex: 1; padding-left: 20px;">
-        <h3 style="color: #FFFFFF;">AROUND THE WEB</h3>
-        <!-- Tambahkan ikon media sosial di sini jika diperlukan -->
+
+    <div style="flex: 1; padding: 0 15px;">
+        <h3 style="color: #FFFFFF; margin-bottom: 15px;">AROUND THE WEB</h3>
+        <div style="display: flex; gap: 15px;">
+            <a href="#" style="color: #808080; text-decoration: none;">Facebook</a>
+            <a href="#" style="color: #808080; text-decoration: none;">Twitter</a>
+            <a href="#" style="color: #808080; text-decoration: none;">LinkedIn</a>
+        </div>
     </div>
-    
-    <div style="flex: 1; padding-left: 20px;">
-        <h3 style="color: #FFFFFF;">ABOUT DELTAUSER</h3>
-        <p>DeltaUser is an employee in Freelancer.</p>
+
+    <div style="flex: 1; padding: 0 15px;">
+        <h3 style="color: #FFFFFF; margin-bottom: 15px;">ABOUT DELTAUSER</h3>
+        <p style="margin: 5px 0; line-height: 1.5;">DeltaUser is an employee in Freelancer.</p>
     </div>
+
+</div>
+
+<div style="text-align: center; color: #808080; margin-top: 20px; padding: 10px 0; font-size: 12px;">
+    © 2023 DeltaUser. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
