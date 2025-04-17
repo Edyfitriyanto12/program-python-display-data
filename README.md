@@ -4,10 +4,10 @@
 Our project introduces a state-of-the-art Face Recognition Locker System implemented using a customized VGG16 model. This innovative solution combines advanced face recognition technology with a secure locker system, providing a seamless and secure user experience.
 
 ## Contributor
-| Full Name | Affiliation | Email | LinkedIn | Role |
+| Full Name | Affiliation | Email | LinkedIn | NIPM/NIM |
 | --- | --- | --- | --- | --- |
-| Edy Fitriyanto | Ahmad Dahlan University | edyfitriyanto12@gmail.com | [link](https://www.linkedin.com/in/edy-fitriyanto-12163622a/) |Team Member |
-| Ir. Arsyad Cahya Subrata S.T.,M.T. | Lecturer TE UAD | nityalaksmi@gmail.com | [link](https://www.linkedin.com/in/nitya-laksmi-0b152b18b/) | Dosen Pembimbing |
+| Edy Fitriyanto | Ahmad Dahlan University | edyfitriyanto12@gmail.com | [link](https://www.linkedin.com/in/edy-fitriyanto-12163622a/) |NIM: 2100022030|
+| Ir. Arsyad Cahya Subrata S.T.,M.T. | Lecturer TE UAD | nityalaksmi@gmail.com | [link](https://www.linkedin.com/in/nitya-laksmi-0b152b18b/) | NIPM : 19940621 202109 111 1415105 |
 
 ## Setup
 ### Prerequisite Packages (Dependencies)
