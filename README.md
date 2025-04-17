@@ -11,12 +11,11 @@ Our project introduces a state-of-the-art Face Recognition Locker System impleme
 
 ## Setup
 ### Prerequisite Packages (Dependencies)
-- pytorch==2.1.0+cu118
-- sklearn==1.2.2
-- PIL==9.4.0
-- matplotlib==3.7.1
-- numpy==1.23.5
-- streamlit==1.28.2
+- streamlit
+- pandas
+- streamlit-echarts
+- streamlit-autorefresh
+
 
 ## Dataset
 The Dataset is a manually curated collection of high-quality facial images representing each team member, designed for training and evaluating a face recognition model
