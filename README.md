@@ -7,7 +7,7 @@ Our project introduces a state-of-the-art Face Recognition Locker System impleme
 | Full Name | Affiliation | Email | LinkedIn | NIPM/NIM |
 | --- | --- | --- | --- | --- |
 | Edy Fitriyanto | student Ahmad Dahlan University | edyfitriyanto12@gmail.com | [link](https://www.linkedin.com/in/edy-fitriyanto-12163622a/) |NIM: 2100022030|
-| Ir. Arsyad Cahya Subrata S.T.,M.T. | Lecturer TE UAD | - | [link](https://www.linkedin.com/in/arsyad-cahya-subrata-692607153/) | NIPM : 19940621 202109 111 1415105 |
+| Ir. Arsyad Cahya Subrata S.T.,M.T. | Lecturer TE UAD | arsyad.subrata@te.uad.ac.id | [link](https://www.linkedin.com/in/arsyad-cahya-subrata-692607153/) | NIPM : 19940621 202109 111 1415105 |
 
 ## Setup
 ### Prerequisite Packages (Dependencies)
