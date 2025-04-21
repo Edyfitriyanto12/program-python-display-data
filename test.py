@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 from streamlit_autorefresh import st_autorefresh
@@ -114,8 +113,16 @@ def create_temperature_chart(df):
     # Temukan semua kolom suhu
     temp_columns = [col for col in df.columns if 'suhu' in col.lower() or 'temp' in col.lower()]
     
+    # Konversi kolom suhu ke numeric
+    for col in temp_columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+    
     # Temukan kolom output fuzzy
     fuzzy_columns = [col for col in df.columns if 'fuzzy' in col.lower() or 'output' in col.lower()]
+    
+    # Konversi kolom fuzzy ke numeric
+    for col in fuzzy_columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
     
     # Buat line chart dengan tema dark
     line_chart = (
@@ -128,6 +135,7 @@ def create_temperature_chart(df):
             ),
             tooltip_opts=opts.TooltipOpts(
                 trigger="axis",
+                formatter="{b}<br/>{a0}: {c0}°C<br/>{a1}: {c1}",
                 background_color="#FFFFFF",
                 border_color="#333333",
                 textstyle_opts=opts.TextStyleOpts(color="#333333")
@@ -169,9 +177,10 @@ def create_temperature_chart(df):
     # Tambahkan series untuk suhu
     for col in temp_columns:
         if col != timestamp_col:  # Hindari memplot kolom timestamp sebagai suhu
+            y_data = df[col].dropna().tolist()
             line_chart.add_yaxis(
                 series_name=col,
-                y_axis=df[col].tolist(),
+                y_axis=y_data,
                 is_smooth=True,
                 label_opts=opts.LabelOpts(is_show=False),
                 markpoint_opts=opts.MarkPointOpts(
@@ -191,9 +200,10 @@ def create_temperature_chart(df):
     
     # Tambahkan series untuk output fuzzy
     for col in fuzzy_columns:
+        y_data = df[col].dropna().tolist()
         line_chart.add_yaxis(
             series_name=col,
-            y_axis=df[col].tolist(),
+            y_axis=y_data,
             is_smooth=True,
             linestyle_opts=opts.LineStyleOpts(width=3, type_="dashed"),
             label_opts=opts.LabelOpts(is_show=False),
@@ -238,6 +248,10 @@ def create_energy_chart(df):
     current_columns = [col for col in df.columns if 'ampere' in col.lower() or 'current' in col.lower()]
     freq_columns = [col for col in df.columns if 'frekuensi' in col.lower() or 'freq' in col.lower()]
     
+    # Konversi semua kolom ke numeric
+    for col in voltage_columns + current_columns + freq_columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+    
     # Buat line chart dengan tema dark
     line_chart = (
         Line(init_opts=opts.InitOpts(theme="dark"))
@@ -249,6 +263,7 @@ def create_energy_chart(df):
             ),
             tooltip_opts=opts.TooltipOpts(
                 trigger="axis",
+                formatter="{b}<br/>{a0}: {c0}V<br/>{a1}: {c1}A<br/>{a2}: {c2}Hz",
                 background_color="#FFFFFF",
                 border_color="#333333",
                 textstyle_opts=opts.TextStyleOpts(color="#333333")
@@ -289,9 +304,10 @@ def create_energy_chart(df):
     
     # Tambahkan series untuk tegangan
     for col in voltage_columns:
+        y_data = df[col].dropna().tolist()
         line_chart.add_yaxis(
             series_name=col,
-            y_axis=df[col].tolist(),
+            y_axis=y_data,
             is_smooth=True,
             label_opts=opts.LabelOpts(is_show=False),
             itemstyle_opts=opts.ItemStyleOpts(color="#1E90FF"),  # Warna biru
@@ -308,9 +324,10 @@ def create_energy_chart(df):
     
     # Tambahkan series untuk ampere
     for col in current_columns:
+        y_data = df[col].dropna().tolist()
         line_chart.add_yaxis(
             series_name=col,
-            y_axis=df[col].tolist(),
+            y_axis=y_data,
             is_smooth=True,
             label_opts=opts.LabelOpts(is_show=False),
             itemstyle_opts=opts.ItemStyleOpts(color="#32CD32"),  # Warna hijau
@@ -327,9 +344,10 @@ def create_energy_chart(df):
     
     # Tambahkan series untuk frekuensi
     for col in freq_columns:
+        y_data = df[col].dropna().tolist()
         line_chart.add_yaxis(
             series_name=col,
-            y_axis=df[col].tolist(),
+            y_axis=y_data,
             is_smooth=True,
             label_opts=opts.LabelOpts(is_show=False),
             itemstyle_opts=opts.ItemStyleOpts(color="#FF6347"),  # Warna merah
@@ -381,8 +399,7 @@ try:
 except Exception as e:
     st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
 
-import streamlit as st
-
+# Footer
 st.markdown("""
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -470,4 +487,3 @@ st.markdown("""
     © 2023 DeltaUser. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
-
