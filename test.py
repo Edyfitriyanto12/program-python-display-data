@@ -87,11 +87,19 @@ def parse_timestamp(timestamp_str):
         st.warning(f"Gagal parsing timestamp: {timestamp_str}. Error: {e}")
         return None
 
+def to_float_safe(val):
+    """Mengonversi string dengan koma ke float. Contoh: '66,55' → 66.55"""
+    try:
+        if isinstance(val, str):
+            val = val.replace(',', '.')
+        return float(val)
+    except (ValueError, TypeError):
+        return None
 def create_temperature_chart(df):
     """Membuat grafik line chart untuk suhu dan output fuzzy"""
+    
     # Cari kolom timestamp (case insensitive)
     timestamp_cols = [col for col in df.columns if 'timestamp' in col.lower()]
-    
     timestamp_col = timestamp_cols[0]  # Ambil kolom pertama yang mengandung 'timestamp'
     
     # Konversi timestamp ke format datetime
@@ -168,6 +176,9 @@ def create_temperature_chart(df):
     # Tambahkan series untuk suhu
     for col in temp_columns:
         if col != timestamp_col:  # Hindari memplot kolom timestamp sebagai suhu
+            # Konversi nilai ke float aman
+            df[col] = df[col].apply(to_float_safe)
+            
             line_chart.add_yaxis(
                 series_name=col,
                 y_axis=df[col].round(1).tolist(),
@@ -190,6 +201,9 @@ def create_temperature_chart(df):
     
     # Tambahkan series untuk output fuzzy
     for col in fuzzy_columns:
+        # Konversi nilai ke float aman
+        df[col] = df[col].apply(to_float_safe)
+        
         line_chart.add_yaxis(
             series_name=col,
             y_axis=df[col].round(1).tolist(),
