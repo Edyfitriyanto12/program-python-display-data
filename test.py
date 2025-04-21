@@ -245,7 +245,9 @@ def create_energy_chart(df):
     
     # Format timestamp untuk display di grafik
     timestamps = df['parsed_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').tolist()
-    
+    # Terapkan konversi ke float dengan aman
+    for col in df.columns:
+        df[col] = df[col].apply(to_float_safe)
     # Temukan kolom energi (case insensitive)
     voltage_columns = [col for col in df.columns if 'volt' in col.lower() or 'tegangan' in col.lower()]
     current_columns = [col for col in df.columns if 'ampere' in col.lower() or 'current' in col.lower()]
