@@ -304,7 +304,7 @@ def create_energy_chart(df):
     for col in voltage_columns:
         line_chart.add_yaxis(
             series_name=col,
-            y_axis=df[col].round(1).tolist(),
+            y_axis=df[col].tolist(),
             is_smooth=True,
             label_opts=opts.LabelOpts(is_show=False),
             itemstyle_opts=opts.ItemStyleOpts(color="#1E90FF"),  # Warna biru
@@ -323,7 +323,7 @@ def create_energy_chart(df):
     for col in current_columns:
         line_chart.add_yaxis(
             series_name=col,
-            y_axis=df[col].round(1).tolist(),
+            y_axis=df[col].tolist(),
             is_smooth=True,
             label_opts=opts.LabelOpts(is_show=False),
             itemstyle_opts=opts.ItemStyleOpts(color="#32CD32"),  # Warna hijau
@@ -342,7 +342,7 @@ def create_energy_chart(df):
     for col in freq_columns:
         line_chart.add_yaxis(
             series_name=col,
-            y_axis=df[col].round(1).tolist(),
+            y_axis=df[col].tolist(),
             is_smooth=True,
             label_opts=opts.LabelOpts(is_show=False),
             itemstyle_opts=opts.ItemStyleOpts(color="#FF6347"),  # Warna merah
