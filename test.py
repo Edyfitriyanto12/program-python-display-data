@@ -6,41 +6,92 @@ from pyecharts.charts import Line
 from streamlit_echarts import st_pyecharts
 from datetime import datetime
 
-# meta tag untuk mobile
-st.set_page_config(page_title="Data dari Google Sheet", layout="wide")
+# Konfigurasi halaman untuk mobile friendly
+st.set_page_config(
+    page_title="Data dari Google Sheet",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
-# Custom CSS untuk teks yang lebih cerah
-st.markdown("""
+# Deteksi perangkat mobile (pendekatan sederhana)
+user_agent = st.experimental_get_query_params().get("user_agent", [""])[0]
+is_mobile = "mobi" in user_agent.lower()
+
+# CSS Custom dengan fitur responsif
+st.markdown(f"""
 <style>
-    /* Judul grafik */
-    .chart-title {
+    /* Gaya dasar untuk semua perangkat */
+    .chart-title {{
         color: #ffffff !important;
         font-weight: bold !important;
-    }
+    }}
     
-    /* Label sumbu */
-    .x-axis-label, .y-axis-label {
+    .x-axis-label, .y-axis-label {{
         fill: #ffffff !important;
-    }
+    }}
     
-    /* Legenda */
-    .legend-text {
+    .legend-text {{
         fill: #ffffff !important;
-    }
+    }}
     
-    /* Tooltip */
-    .tooltip {
+    .tooltip {{
         color: #333333 !important;
         background-color: #ffffff !important;
-    }
+    }}
     
-    /* Highlight untuk tabel */
-    .highlight-example {
+    .highlight-example {{
         background-color: rgba(100, 149, 237, 0.6);
         padding: 5px;
         border-radius: 3px;
         font-weight: bold;
-    }
+    }}
+    
+    /* Responsive design untuk mobile */
+    @media screen and (max-width: 768px) {{
+        /* Penyesuaian ukuran grafik */
+        .st-echarts {{
+            width: 100% !important;
+            height: {300 if is_mobile else 500}px !important;
+        }}
+        
+        /* Tabel scroll horizontal */
+        .stDataFrame {{
+            overflow-x: auto;
+            display: block;
+            width: 100%;
+            font-size: 12px;
+        }}
+        
+        /* Padding lebih kecil */
+        .main .block-container {{
+            padding: 1rem;
+        }}
+        
+        /* Ukuran teks lebih kecil */
+        h1 {{
+            font-size: 1.5rem !important;
+        }}
+        
+        h2 {{
+            font-size: 1.2rem !important;
+        }}
+        
+        /* Layout footer vertikal */
+        .footer-container {{
+            flex-direction: column;
+            padding: 20px 10px;
+        }}
+        
+        .footer-column {{
+            flex: 1 1 100%;
+            margin-bottom: 20px;
+            padding: 10px 0;
+        }}
+        
+        .social-icons {{
+            justify-content: center;
+        }}
+    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -95,12 +146,17 @@ def to_float_safe(val):
         return float(val)
     except (ValueError, TypeError):
         return None
+
 def create_temperature_chart(df):
     """Membuat grafik line chart untuk suhu dan output fuzzy"""
     
     # Cari kolom timestamp (case insensitive)
     timestamp_cols = [col for col in df.columns if 'timestamp' in col.lower()]
-    timestamp_col = timestamp_cols[0]  # Ambil kolom pertama yang mengandung 'timestamp'
+    if not timestamp_cols:
+        st.error("Kolom timestamp tidak ditemukan!")
+        return None
+        
+    timestamp_col = timestamp_cols[0]
     
     # Konversi timestamp ke format datetime
     df['parsed_timestamp'] = df[timestamp_col].apply(parse_timestamp)
@@ -175,8 +231,7 @@ def create_temperature_chart(df):
     
     # Tambahkan series untuk suhu
     for col in temp_columns:
-        if col != timestamp_col:  # Hindari memplot kolom timestamp sebagai suhu
-            # Konversi nilai ke float aman
+        if col != timestamp_col:
             df[col] = df[col].apply(to_float_safe)
             
             line_chart.add_yaxis(
@@ -201,7 +256,6 @@ def create_temperature_chart(df):
     
     # Tambahkan series untuk output fuzzy
     for col in fuzzy_columns:
-        # Konversi nilai ke float aman
         df[col] = df[col].apply(to_float_safe)
         
         line_chart.add_yaxis(
@@ -226,7 +280,6 @@ def create_temperature_chart(df):
 
 def create_energy_chart(df):
     """Membuat grafik line chart untuk parameter energi (tegangan, ampere, frekuensi)"""
-    # Pastikan kolom timestamp sudah di-parse
     if 'parsed_timestamp' not in df.columns:
         timestamp_cols = [col for col in df.columns if 'timestamp' in col.lower()]
         if not timestamp_cols:
@@ -240,20 +293,16 @@ def create_energy_chart(df):
         st.error("Tidak ada data dengan timestamp valid!")
         return None
     
-    # Urutkan berdasarkan timestamp
     df = df.sort_values('parsed_timestamp')
-    
-    # Format timestamp untuk display di grafik
     timestamps = df['parsed_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').tolist()
-    # Terapkan konversi ke float dengan aman
+    
     for col in df.columns:
         df[col] = df[col].apply(to_float_safe)
-    # Temukan kolom energi (case insensitive)
+    
     voltage_columns = [col for col in df.columns if 'volt' in col.lower() or 'tegangan' in col.lower()]
     current_columns = [col for col in df.columns if 'ampere' in col.lower() or 'current' in col.lower()]
     freq_columns = [col for col in df.columns if 'frekuensi' in col.lower() or 'freq' in col.lower()]
     
-    # Buat line chart dengan tema dark
     line_chart = (
         Line(init_opts=opts.InitOpts(theme="dark"))
         .add_xaxis(timestamps)
@@ -302,14 +351,13 @@ def create_energy_chart(df):
         )
     )
     
-    # Tambahkan series untuk tegangan
     for col in voltage_columns:
         line_chart.add_yaxis(
             series_name=col,
             y_axis=df[col].tolist(),
             is_smooth=True,
             label_opts=opts.LabelOpts(is_show=False),
-            itemstyle_opts=opts.ItemStyleOpts(color="#1E90FF"),  # Warna biru
+            itemstyle_opts=opts.ItemStyleOpts(color="#1E90FF"),
             markpoint_opts=opts.MarkPointOpts(
                 data=[
                     opts.MarkPointItem(type_="max", name="Max"),
@@ -321,14 +369,13 @@ def create_energy_chart(df):
             ),
         )
     
-    # Tambahkan series untuk ampere
     for col in current_columns:
         line_chart.add_yaxis(
             series_name=col,
             y_axis=df[col].tolist(),
             is_smooth=True,
             label_opts=opts.LabelOpts(is_show=False),
-            itemstyle_opts=opts.ItemStyleOpts(color="#32CD32"),  # Warna hijau
+            itemstyle_opts=opts.ItemStyleOpts(color="#32CD32"),
             markpoint_opts=opts.MarkPointOpts(
                 data=[
                     opts.MarkPointItem(type_="max", name="Max"),
@@ -340,14 +387,13 @@ def create_energy_chart(df):
             ),
         )
     
-    # Tambahkan series untuk frekuensi
     for col in freq_columns:
         line_chart.add_yaxis(
             series_name=col,
             y_axis=df[col].tolist(),
             is_smooth=True,
             label_opts=opts.LabelOpts(is_show=False),
-            itemstyle_opts=opts.ItemStyleOpts(color="#FF6347"),  # Warna merah
+            itemstyle_opts=opts.ItemStyleOpts(color="#FF6347"),
             markpoint_opts=opts.MarkPointOpts(
                 data=[
                     opts.MarkPointItem(type_="max", name="Max"),
@@ -365,19 +411,19 @@ try:
     df = pd.read_csv(spreadsheet_url)
     st.success("✅ Data berhasil dimuat dan auto-refresh tiap 15 detik.")
     
-    # Tampilkan grafik suhu dalam container
+    # Tampilkan grafik suhu
     with st.container():
         st.header("📈 Visualisasi Grafik Suhu dan Output Fuzzy")
         temp_chart = create_temperature_chart(df)
         if temp_chart:
-            st_pyecharts(temp_chart, height="500px", theme="dark")
+            st_pyecharts(temp_chart, height=300 if is_mobile else 500, theme="dark")
     
-    # Tampilkan grafik energi dalam container
+    # Tampilkan grafik energi
     with st.container():
         st.header("⚡ Visualisasi Grafik Parameter Energi")
         energy_chart = create_energy_chart(df)
         if energy_chart:
-            st_pyecharts(energy_chart, height="500px", theme="dark")
+            st_pyecharts(energy_chart, height=300 if is_mobile else 500, theme="dark")
     
     # Tampilkan tabel data
     df_display = df.drop(columns=["parsed_timestamp"], errors="ignore")
@@ -386,9 +432,12 @@ try:
     styled_df = df_display.style \
         .apply(highlight_temp, axis=1) \
         .format(precision=1)
-    st.dataframe(styled_df, use_container_width=True)
+    st.dataframe(
+        styled_df, 
+        use_container_width=True,
+        height=300 if is_mobile else None
+    )
 
-    # Tambahkan penjelasan
     st.markdown("""
     <p>Baris dengan <span class="highlight-example">warna biru transparan</span> menunjukkan terdapat suhu antara 60-70°C pada salah satu sensor</p>
     """, unsafe_allow_html=True)
@@ -396,8 +445,7 @@ try:
 except Exception as e:
     st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
 
-import streamlit as st
-
+# Footer responsif
 st.markdown("""
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -460,12 +508,30 @@ st.markdown("""
         padding: 15px 0;
         font-size: 13px;
     }
+    
+    /* Responsive footer */
+    @media screen and (max-width: 768px) {
+        .footer-container {
+            flex-direction: column;
+            padding: 20px 10px;
+        }
+        
+        .footer-column {
+            flex: 1 1 100%;
+            margin-bottom: 20px;
+            padding: 10px 0;
+        }
+        
+        .social-icons {
+            justify-content: center;
+        }
+    }
 </style>
 
 <div class="footer-container">
     <div class="footer-column">
         <h3 class="footer-title">LOCATION</h3>
-        <p class="footer-text",<br> Bruno,Purworejo, Central Java (54261)</p>
+        <p class="footer-text">Bruno, Purworejo, Central Java (54261)</p>
     </div>
     <div class="footer-column">
         <h3 class="footer-title">AROUND THE WEB</h3>
@@ -485,4 +551,3 @@ st.markdown("""
     © 2023 DeltaUser. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
-
