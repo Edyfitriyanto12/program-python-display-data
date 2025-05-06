@@ -7,39 +7,85 @@ from streamlit_echarts import st_pyecharts
 from datetime import datetime
 
 # HARUS PALING ATAS setelah import
-st.set_page_config(page_title="Data dari Google Sheet", layout="wide")
+st.set_page_config(
+    page_title="Data dari Google Sheet", 
+    layout="wide",
+    initial_sidebar_state="collapsed"  # Menyembunyikan sidebar di mobile
+)
 
-# Custom CSS untuk teks yang lebih cerah
+# Tambahkan meta tag untuk viewport mobile
+st.markdown("""
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+""", unsafe_allow_html=True)
+
+# Custom CSS untuk responsive design
 st.markdown("""
 <style>
-    /* Judul grafik */
+    /* Base styles untuk semua perangkat */
     .chart-title {
         color: #ffffff !important;
         font-weight: bold !important;
     }
     
-    /* Label sumbu */
     .x-axis-label, .y-axis-label {
         fill: #ffffff !important;
     }
     
-    /* Legenda */
     .legend-text {
         fill: #ffffff !important;
     }
     
-    /* Tooltip */
     .tooltip {
         color: #333333 !important;
         background-color: #ffffff !important;
     }
     
-    /* Highlight untuk tabel */
     .highlight-example {
         background-color: rgba(100, 149, 237, 0.6);
         padding: 5px;
         border-radius: 3px;
         font-weight: bold;
+    }
+    
+    /* Responsive adjustments */
+    @media screen and (max-width: 768px) {
+        /* Ukuran font lebih kecil untuk mobile */
+        .css-18e3th9 {
+            padding: 1rem 1rem;
+        }
+        
+        h1 {
+            font-size: 1.5rem !important;
+        }
+        
+        h2 {
+            font-size: 1.3rem !important;
+        }
+        
+        /* Grafik lebih kecil di mobile */
+        .stPyecharts {
+            height: 300px !important;
+        }
+        
+        /* Tabel scroll horizontal di mobile */
+        .stDataFrame {
+            overflow-x: auto;
+            display: block;
+        }
+        
+        /* Footer lebih compact di mobile */
+        .footer-column {
+            flex: 1 1 100% !important;
+            margin-bottom: 20px;
+        }
+    }
+    
+    /* Container responsive */
+    .main-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -95,6 +141,7 @@ def to_float_safe(val):
         return float(val)
     except (ValueError, TypeError):
         return None
+
 def create_temperature_chart(df):
     """Membuat grafik line chart untuk suhu dan output fuzzy"""
     
@@ -365,29 +412,34 @@ try:
     df = pd.read_csv(spreadsheet_url)
     st.success("✅ Data berhasil dimuat dan auto-refresh tiap 15 detik.")
     
-    # Tampilkan grafik suhu dalam container
-    with st.container():
-        st.header("📈 Visualisasi Grafik Suhu dan Output Fuzzy")
-        temp_chart = create_temperature_chart(df)
-        if temp_chart:
-            st_pyecharts(temp_chart, height="500px", theme="dark")
+    # Gunakan columns untuk layout responsif
+    col1, col2 = st.columns([1, 1])  # 2 kolom di desktop, 1 kolom di mobile
     
-    # Tampilkan grafik energi dalam container
-    with st.container():
-        st.header("⚡ Visualisasi Grafik Parameter Energi")
-        energy_chart = create_energy_chart(df)
-        if energy_chart:
-            st_pyecharts(energy_chart, height="500px", theme="dark")
+    with col1:
+        # Tampilkan grafik suhu dalam container
+        with st.container():
+            st.header("📈 Grafik Suhu & Fuzzy")
+            temp_chart = create_temperature_chart(df)
+            if temp_chart:
+                # Sesuaikan tinggi berdasarkan device
+                chart_height = 400 if st._is_running_with_streamlit else 300
+                st_pyecharts(temp_chart, height=chart_height, theme="dark")
     
-    # Tampilkan tabel data
-    df_display = df.drop(columns=["parsed_timestamp"], errors="ignore")
-
+    with col2:
+        # Tampilkan grafik energi dalam container
+        with st.container():
+            st.header("⚡ Grafik Energi")
+            energy_chart = create_energy_chart(df)
+            if energy_chart:
+                chart_height = 400 if st._is_running_with_streamlit else 300
+                st_pyecharts(energy_chart, height=chart_height, theme="dark")
+    
+    # Tampilkan tabel data dengan scroll horizontal di mobile
     st.header("📄 Data Tabel")
-    styled_df = df_display.style \
-        .apply(highlight_temp, axis=1) \
-        .format(precision=1)
-    st.dataframe(styled_df, use_container_width=True)
-
+    df_display = df.drop(columns=["parsed_timestamp"], errors="ignore")
+    styled_df = df_display.style.apply(highlight_temp, axis=1).format(precision=1)
+    st.dataframe(styled_df, use_container_width=True, height=400)  # Fixed height dengan scroll internal
+    
     # Tambahkan penjelasan
     st.markdown("""
     <p>Baris dengan <span class="highlight-example">warna biru transparan</span> menunjukkan terdapat suhu antara 60-70°C pada salah satu sensor</p>
@@ -396,8 +448,7 @@ try:
 except Exception as e:
     st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
 
-import streamlit as st
-
+# Footer responsif
 st.markdown("""
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -409,19 +460,20 @@ st.markdown("""
         background-color: #2C3E50;
         color: #ffffff;
         font-family: Arial, sans-serif;
-        padding: 40px 20px 20px 20px;
+        padding: 20px;
+        margin-top: 30px;
     }
 
     .footer-column {
         flex: 1 1 30%;
         min-width: 200px;
-        padding: 10px 20px;
+        padding: 10px;
         box-sizing: border-box;
     }
 
     .footer-title {
         color: #ffffff;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         font-size: 16px;
         font-weight: bold;
     }
@@ -430,23 +482,30 @@ st.markdown("""
         color: #bdc3c7;
         font-size: 14px;
         line-height: 1.5;
+        margin-bottom: 15px;
     }
 
     .social-icons {
         display: flex;
-        gap: 15px;
+        gap: 10px;
         align-items: center;
+        flex-wrap: wrap;
     }
 
     .social-icons a {
         color: #ffffff;
         background-color: #1abc9c;
         border-radius: 50%;
-        padding: 10px;
-        font-size: 16px;
+        padding: 8px;
+        font-size: 14px;
         text-align: center;
         text-decoration: none;
         transition: background-color 0.3s;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .social-icons a:hover {
@@ -457,15 +516,47 @@ st.markdown("""
         background-color: #233140;
         text-align: center;
         color: #bdc3c7;
-        padding: 15px 0;
-        font-size: 13px;
+        padding: 12px 0;
+        font-size: 12px;
+    }
+
+    @media screen and (max-width: 768px) {
+        .footer-container {
+            flex-direction: column;
+            padding: 15px;
+        }
+        
+        .footer-column {
+            flex: 1 1 100%;
+            margin-bottom: 20px;
+        }
+        
+        .footer-title {
+            font-size: 15px;
+        }
+        
+        .footer-text {
+            font-size: 13px;
+        }
+        
+        .social-icons a {
+            padding: 6px;
+            font-size: 13px;
+            width: 32px;
+            height: 32px;
+        }
+        
+        .copyright {
+            font-size: 11px;
+            padding: 10px 0;
+        }
     }
 </style>
 
 <div class="footer-container">
     <div class="footer-column">
         <h3 class="footer-title">LOCATION</h3>
-        <p class="footer-text",<br> Bruno,Purworejo, Central Java (54261)</p>
+        <p class="footer-text">Bruno, Purworejo, Central Java (54261)</p>
     </div>
     <div class="footer-column">
         <h3 class="footer-title">AROUND THE WEB</h3>
@@ -477,7 +568,7 @@ st.markdown("""
     </div>
     <div class="footer-column">
         <h3 class="footer-title">ABOUT DELTAUSER</h3>
-        <p class="footer-text">DeltaUser is a content creator focused on delivering educational resources in programming, IoT, and modern web technologies.</p>
+        <p class="footer-text">DeltaUser creates educational content about programming, IoT, and web technologies.</p>
     </div>
 </div>
 
@@ -485,4 +576,3 @@ st.markdown("""
     © 2023 DeltaUser. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
-
