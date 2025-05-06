@@ -6,7 +6,7 @@ from pyecharts.charts import Line
 from streamlit_echarts import st_pyecharts
 from datetime import datetime
 
-# HARUS PALING ATAS setelah import
+# meta tag untuk mobile
 st.set_page_config(page_title="Data dari Google Sheet", layout="wide")
 
 # Custom CSS untuk teks yang lebih cerah
