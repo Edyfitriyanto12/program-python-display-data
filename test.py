@@ -14,8 +14,8 @@ st.set_page_config(
 )
 
 # Deteksi perangkat mobile (pendekatan sederhana)
-user_agent = st.experimental_get_query_params().get("user_agent", [""])[0]
-is_mobile = "mobi" in user_agent.lower()
+user_agent = st.query_params.get("user_agent", "")
+is_mobile = "mobile" in user_agent.lower()
 
 # CSS Custom dengan fitur responsif
 st.markdown(f"""
