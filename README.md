@@ -17,9 +17,9 @@ Our project introduces a implementation of intelligent drying technology in a so
 - streamlit-autorefresh
 
 
-## Dataset
-The Dataset is a manually curated collection of high-quality facial images representing each team member, designed for training and evaluating a face recognition model
-- Link: https://drive.google.com/file/d/1F5aAY3sl3X8otpcknJKCEGq-g0SLmZWg/view?usp=sharing
+## Dokumentation
+This documentation compiles the test results obtained during implementation in the integrated solar dome dryer system. Daily monitoring is conducted to check the dome's internal temperature conditions, preventing errors and avoiding damage to the dried materials.
+- Link:
 
 example dataset :
 
