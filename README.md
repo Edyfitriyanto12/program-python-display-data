@@ -1,7 +1,7 @@
-# FACE FORTIFY : Face Recognition Locker System
+#  The implementation of intelligent drying technology in a semi-hybrid solar dome dyer using IoT-based fuzzy logic algoritm
 
 ## Project Description
-Our project introduces a state-of-the-art Face Recognition Locker System implemented using a customized VGG16 model. This innovative solution combines advanced face recognition technology with a secure locker system, providing a seamless and secure user experience.
+Our project introduces a implementation of intelligent drying technology in a solar dome dyer using IoT-based fuzzy logic algoritm. This innovative solution implements and combines fuzzy logic technology to assist users in accelerating the drying process, maintaining stable temperatures within the dome chamber, and ensuring consistent drying quality.
 
 ## Contributor
 | Full Name | Affiliation | Email | LinkedIn | NIPM/NIM |
