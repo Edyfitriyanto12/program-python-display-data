@@ -1,4 +1,4 @@
-#  The implementation of intelligent drying technology in a semi-hybrid solar dome dyer using IoT-based fuzzy logic algoritm
+The implementation of intelligent drying technology in a semi-hybrid solar dome dyer using IoT-based fuzzy logic algoritm
 
 ## Project Description
 Our project introduces a implementation of intelligent drying technology in a solar dome dyer using IoT-based fuzzy logic algoritm. This innovative solution implements and combines fuzzy logic technology to assist users in accelerating the drying process, maintaining stable temperatures within the dome chamber, and ensuring consistent drying quality.
