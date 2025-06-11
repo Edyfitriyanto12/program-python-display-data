@@ -100,7 +100,8 @@ st_autorefresh(interval=15 * 1000, key="auto_refresh")
 
 st.title("📊 Monitoring Real-time Pengering Cerdas")
 
-spreadsheet_url = "https://docs.google.com/spreadsheets/d/1aFLGmvdviHrPQyKeFcD1jdZU9A3g_RJEMP8X_iMCA7s/export?format=csv"
+# spreadsheet_url = "https://docs.google.com/spreadsheets/d/1aFLGmvdviHrPQyKeFcD1jdZU9A3g_RJEMP8X_iMCA7s/export?format=csv"
+spreadsheet_url = "https://docs.google.com/spreadsheets/d/1vdoaynkLNqI1PgOrtJ96WuBdHgrIheUfPMSSl0n55KI/export?format=csv"
 
 def highlight_temp(row):
     """Fungsi untuk memberikan warna biru transparan pada seluruh baris jika suhu antara 60-70°C"""
